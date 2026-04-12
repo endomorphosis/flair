@@ -155,12 +155,19 @@ function ResultsContent() {
                   White applicants
                 </li>
                 <li>
-                  Groups with fewer than 30 applications are excluded to avoid
-                  unreliable ratios
+                  Groups with fewer than 30 applications are flagged as
+                  low-sample (n&lt;30) and hidden by default in the chart, but
+                  can be toggled on via checkboxes. Groups below this
+                  threshold are excluded from disparity ratio calculations.
                 </li>
                 <li>
                   Peer comparison uses statewide aggregate denial rates across
                   all lenders in the same state
+                </li>
+                <li>
+                  Case law powered by Midpage (keyword search across 13M+
+                  federal court opinions). Statutory provisions powered by
+                  TrustFoundry (search across 8M+ laws and regulations).
                 </li>
                 <li>
                   This tool provides statistical screening only. It does not
