@@ -9,141 +9,128 @@ export default function AboutPage() {
     .sort((a, b) => b.settlementAmount - a.settlementAmount);
 
   return (
-    <div className="bg-slate-50 min-h-[calc(100vh-3.5rem)]">
+    <div className="min-h-[calc(100vh-3rem)]">
       {/* Hero */}
-      <div className="bg-slate-900 text-white">
-        <div className="max-w-4xl mx-auto px-6 py-16 text-center">
-          <p className="text-sm font-medium text-amber-400 tracking-wide uppercase mb-3">
-            The Problem
-          </p>
-          <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-6 leading-tight">
-            Federal fair lending enforcement<br />
-            just went dark.
+      <div className="bg-[#111] text-white">
+        <div className="max-w-3xl mx-auto px-6 py-20">
+          <h1 className="text-3xl md:text-4xl font-bold tracking-tight mb-6 leading-tight">
+            Mortgage lending disparities are widespread.<br />
+            The tools to find them aren&apos;t.
           </h1>
-          <p className="text-lg text-slate-300 max-w-2xl mx-auto leading-relaxed">
-            Executive Order 14281 (Feb 2025) directed agencies to deprioritize
-            disparate impact enforcement — the legal theory behind{" "}
-            <span className="text-white font-semibold">
-              ${(totalDollars / 1_000_000_000).toFixed(1)}B+ in fair lending settlements
-            </span>{" "}
-            over the past decade.
+          <p className="text-neutral-400 text-base leading-relaxed max-w-xl">
+            Every year, ~5,000 lenders report mortgage data to the federal
+            government. Hundreds have statistically significant racial
+            disparities. But only the DOJ and CFPB had the tools to screen
+            for them — and enforcement has fallen sharply since Executive
+            Order 14281 deprioritized disparate impact cases in February 2025.
           </p>
         </div>
       </div>
 
-      <main className="max-w-4xl mx-auto px-6 py-12">
-        {/* Impact stats */}
-        <section className="mb-16 -mt-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="bg-white rounded-xl border border-slate-200 p-5 text-center shadow-sm">
-              <p className="text-3xl font-bold text-slate-900">~5,000</p>
-              <p className="text-xs text-slate-500 mt-1">HMDA filers report annually</p>
-            </div>
-            <div className="bg-white rounded-xl border border-slate-200 p-5 text-center shadow-sm">
-              <p className="text-3xl font-bold text-slate-900">{summary.totalCases}</p>
-              <p className="text-xs text-slate-500 mt-1">enforcement actions tracked</p>
-            </div>
-            <div className="bg-white rounded-xl border border-slate-200 p-5 text-center shadow-sm">
-              <p className="text-3xl font-bold text-slate-900">
-                ${(totalDollars / 1_000_000_000).toFixed(1)}B
-              </p>
-              <p className="text-xs text-slate-500 mt-1">total settlements</p>
-            </div>
-            <div className="bg-white rounded-xl border border-slate-200 p-5 text-center shadow-sm">
-              <p className="text-3xl font-bold text-red-600">1</p>
-              <p className="text-xs text-slate-500 mt-1">
-                public screening tool for advocates
-              </p>
-            </div>
+      <main className="max-w-3xl mx-auto px-6 py-16">
+        {/* Stats */}
+        <section className="mb-20">
+          <div className="grid grid-cols-4 gap-8">
+            {[
+              { value: "~5,000", label: "HMDA filers" },
+              { value: String(summary.totalCases), label: "enforcement actions" },
+              { value: `$${(totalDollars / 1_000_000_000).toFixed(1)}B`, label: "in settlements" },
+              { value: "~25", label: "DOJ fair lending attorneys" },
+            ].map((s) => (
+              <div key={s.label}>
+                <p className="text-2xl font-bold text-[#111]">{s.value}</p>
+                <p className="text-[11px] text-neutral-500 mt-1">{s.label}</p>
+              </div>
+            ))}
           </div>
         </section>
 
         {/* The Funnel */}
-        <section className="mb-16">
-          <h2 className="text-xl font-semibold text-slate-900 mb-6 text-center">
+        <section className="mb-20">
+          <p className="text-[11px] font-medium tracking-wide text-neutral-500 uppercase mb-6">
             The Enforcement Funnel
-          </h2>
-          <div className="max-w-lg mx-auto space-y-0">
+          </p>
+          <div className="space-y-2 max-w-md">
             {[
-              { label: "HMDA filers reporting data", value: "~5,000", width: "100%", bg: "bg-slate-200" },
-              { label: "Lenders with statistically significant disparities", value: "Hundreds", width: "75%", bg: "bg-slate-300" },
-              { label: "Fair housing complaints filed per year", value: "~30,000", width: "55%", bg: "bg-amber-200" },
-              { label: "Lending-related complaints", value: "~2,500", width: "40%", bg: "bg-amber-300" },
-              { label: "Formal DOJ/CFPB investigations per year", value: "~50-100", width: "25%", bg: "bg-red-200" },
-              { label: "Public enforcement settlements (last decade)", value: String(summary.totalCases), width: "15%", bg: "bg-red-400 text-white" },
+              { value: "~5,000", label: "Lenders reporting HMDA data", pct: 100 },
+              { value: "Hundreds", label: "With statistically significant disparities", pct: 70 },
+              { value: "~30,000", label: "Fair housing complaints filed/year", pct: 50 },
+              { value: "~2,500", label: "Lending-related complaints", pct: 35 },
+              { value: "~50–100", label: "Formal DOJ/CFPB investigations/year", pct: 20 },
+              { value: String(summary.totalCases), label: "Public settlements (last decade)", pct: 10 },
             ].map((step, i) => (
               <div key={i} className="flex items-center gap-4">
                 <div
-                  className={`${step.bg} rounded-lg py-2.5 px-4 text-center flex-shrink-0 transition-all`}
-                  style={{ width: step.width, minWidth: "80px" }}
+                  className="bg-neutral-900 text-white text-[13px] font-semibold py-2 px-3 flex-shrink-0"
+                  style={{ width: `${step.pct}%`, minWidth: "60px" }}
                 >
-                  <span className="text-sm font-bold">{step.value}</span>
+                  {step.value}
                 </div>
-                <p className="text-xs text-slate-600 leading-tight">{step.label}</p>
+                <p className="text-[13px] text-neutral-500">{step.label}</p>
               </div>
             ))}
           </div>
-          <p className="text-center text-sm text-slate-500 mt-6 max-w-md mx-auto">
-            The bottleneck isn&apos;t the problem — it&apos;s the{" "}
-            <strong>capacity to investigate</strong>. DOJ&apos;s Fair Lending Unit
-            has ~20-30 attorneys. FLAIR puts screening power in the hands of
-            every legal aid org in the country.
+          <p className="text-[13px] text-neutral-500 mt-8 max-w-md leading-relaxed">
+            The bottleneck isn&apos;t the problem — it&apos;s the
+            capacity to investigate. FLAIR puts the same screening power
+            federal regulators use into the hands of every legal aid
+            organization in the country.
           </p>
         </section>
 
         {/* Before / After */}
-        <section className="mb-16">
-          <h2 className="text-xl font-semibold text-slate-900 mb-6 text-center">
-            Before and After FLAIR
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="bg-red-50 rounded-xl border border-red-200 p-6">
-              <h3 className="font-semibold text-red-900 mb-3">Without FLAIR</h3>
-              <ul className="space-y-2 text-sm text-red-800">
+        <section className="mb-20">
+          <p className="text-[11px] font-medium tracking-wide text-neutral-500 uppercase mb-6">
+            Before and After
+          </p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+            <div>
+              <p className="text-sm font-semibold text-[#111] mb-4">Without FLAIR</p>
+              <ul className="space-y-3 text-[13px] text-neutral-500">
                 <li className="flex gap-2">
-                  <span className="text-red-400 mt-0.5">{"\u00d7"}</span>
+                  <span className="text-neutral-300 mt-px">{"\u2013"}</span>
                   HMDA data locked behind complex API
                 </li>
                 <li className="flex gap-2">
-                  <span className="text-red-400 mt-0.5">{"\u00d7"}</span>
+                  <span className="text-neutral-300 mt-px">{"\u2013"}</span>
                   Requires statistical expertise to analyze
                 </li>
                 <li className="flex gap-2">
-                  <span className="text-red-400 mt-0.5">{"\u00d7"}</span>
+                  <span className="text-neutral-300 mt-px">{"\u2013"}</span>
                   No peer comparison — no way to identify outliers
                 </li>
                 <li className="flex gap-2">
-                  <span className="text-red-400 mt-0.5">{"\u00d7"}</span>
+                  <span className="text-neutral-300 mt-px">{"\u2013"}</span>
                   No connection between data and legal framework
                 </li>
                 <li className="flex gap-2">
-                  <span className="text-red-400 mt-0.5">{"\u00d7"}</span>
-                  Attorneys rely on DOJ investigations that are no longer happening
+                  <span className="text-neutral-300 mt-px">{"\u2013"}</span>
+                  Advocates rely on federal investigations that are declining
                 </li>
               </ul>
             </div>
-            <div className="bg-green-50 rounded-xl border border-green-200 p-6">
-              <h3 className="font-semibold text-green-900 mb-3">With FLAIR</h3>
-              <ul className="space-y-2 text-sm text-green-800">
+            <div>
+              <p className="text-sm font-semibold text-[#111] mb-4">With FLAIR</p>
+              <ul className="space-y-3 text-[13px] text-neutral-700">
                 <li className="flex gap-2">
-                  <span className="text-green-500 mt-0.5">{"\u2713"}</span>
+                  <span className="text-[#111] mt-px">{"\u2192"}</span>
                   Search any lender by name in seconds
                 </li>
                 <li className="flex gap-2">
-                  <span className="text-green-500 mt-0.5">{"\u2713"}</span>
+                  <span className="text-[#111] mt-px">{"\u2192"}</span>
                   Automated disparity analysis by race and geography
                 </li>
                 <li className="flex gap-2">
-                  <span className="text-green-500 mt-0.5">{"\u2713"}</span>
+                  <span className="text-[#111] mt-px">{"\u2192"}</span>
                   Peer comparison flags outliers vs. market average
                 </li>
                 <li className="flex gap-2">
-                  <span className="text-green-500 mt-0.5">{"\u2713"}</span>
+                  <span className="text-[#111] mt-px">{"\u2192"}</span>
                   Evidence mapped to ECOA/FHA causes of action
                 </li>
                 <li className="flex gap-2">
-                  <span className="text-green-500 mt-0.5">{"\u2713"}</span>
-                  Enforcement benchmark shows if disparity exceeds DOJ thresholds
+                  <span className="text-[#111] mt-px">{"\u2192"}</span>
+                  Enforcement benchmark against real DOJ thresholds
                 </li>
               </ul>
             </div>
@@ -151,59 +138,51 @@ export default function AboutPage() {
         </section>
 
         {/* How it works */}
-        <section className="mb-16">
-          <h2 className="text-xl font-semibold text-slate-900 mb-6 text-center">
+        <section className="mb-20">
+          <p className="text-[11px] font-medium tracking-wide text-neutral-500 uppercase mb-6">
             How It Works
-          </h2>
-          {/* Flow diagram */}
-          <div className="flex flex-col md:flex-row items-center gap-2 md:gap-0 max-w-3xl mx-auto">
+          </p>
+          <div className="flex items-start gap-8 md:gap-12">
             {[
-              { step: "1", title: "Search", desc: "Lender name + geography", color: "bg-slate-800 text-white" },
-              { step: "", title: "", desc: "", color: "" },
-              { step: "2", title: "Analyze", desc: "HMDA denial rates, peers, geography", color: "bg-blue-600 text-white" },
-              { step: "", title: "", desc: "", color: "" },
-              { step: "3", title: "Map to Law", desc: "Evidence checklist + causes of action", color: "bg-amber-500 text-white" },
-              { step: "", title: "", desc: "", color: "" },
-              { step: "4", title: "Act", desc: "HUD complaint, demand letter, DOJ referral", color: "bg-red-600 text-white" },
-            ].map((item, i) =>
-              item.step ? (
-                <div key={i} className={`${item.color} rounded-xl p-4 text-center flex-1 min-w-0`}>
-                  <p className="text-2xl font-bold opacity-50">{item.step}</p>
-                  <p className="font-semibold text-sm">{item.title}</p>
-                  <p className="text-xs opacity-80 mt-1">{item.desc}</p>
-                </div>
-              ) : (
-                <div key={i} className="text-slate-300 text-2xl px-2 hidden md:block">&rarr;</div>
-              )
-            )}
+              { n: "1", title: "Search", desc: "Lender name + geography" },
+              { n: "2", title: "Analyze", desc: "Denial rates, peers, geography" },
+              { n: "3", title: "Map to Law", desc: "Evidence checklist + causes of action" },
+              { n: "4", title: "Act", desc: "HUD complaint, demand letter, referral" },
+            ].map((step) => (
+              <div key={step.n} className="flex-1">
+                <p className="text-2xl font-bold text-neutral-200">{step.n}</p>
+                <p className="text-sm font-semibold text-[#111] mt-1">{step.title}</p>
+                <p className="text-[13px] text-neutral-500 mt-0.5">{step.desc}</p>
+              </div>
+            ))}
           </div>
         </section>
 
         {/* Recent enforcement */}
-        <section className="mb-16">
-          <h2 className="text-xl font-semibold text-slate-900 mb-3">
-            Recent Enforcement Actions (2021-2026)
-          </h2>
-          <p className="text-sm text-slate-500 mb-4">
-            {recentCases.length} cases since the DOJ Combating Redlining Initiative launched in October 2021
+        <section className="mb-20">
+          <p className="text-[11px] font-medium tracking-wide text-neutral-500 uppercase mb-1">
+            Recent Enforcement
           </p>
-          <div className="bg-white rounded-xl border border-slate-200 divide-y divide-slate-100">
+          <p className="text-[13px] text-neutral-400 mb-6">
+            {recentCases.length} actions since the DOJ Combating Redlining Initiative (Oct 2021)
+          </p>
+          <div className="divide-y divide-neutral-200">
             {recentCases.slice(0, 8).map((c) => (
-              <div key={c.id} className="px-5 py-3 flex items-center gap-4">
-                <span className="font-bold text-slate-900 text-sm whitespace-nowrap w-16">
+              <div key={c.id} className="py-3 flex items-center gap-4">
+                <span className="font-bold text-[#111] text-sm tabular-nums w-14 flex-shrink-0">
                   ${c.settlementAmount >= 1_000_000
                     ? `${(c.settlementAmount / 1_000_000).toFixed(0)}M`
                     : `${(c.settlementAmount / 1_000).toFixed(0)}K`}
                 </span>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-slate-800 truncate">
+                  <p className="text-sm text-[#111] truncate">
                     {c.defendant}
                   </p>
-                  <p className="text-xs text-slate-500">
-                    {c.geography} | {c.year} | {c.legalTheory[0]}
+                  <p className="text-[11px] text-neutral-400">
+                    {c.geography} &middot; {c.year} &middot; {c.legalTheory[0]}
                   </p>
                 </div>
-                <span className="text-xs px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 whitespace-nowrap">
+                <span className="text-[11px] text-neutral-400 whitespace-nowrap">
                   {c.type}
                 </span>
               </div>
@@ -215,11 +194,11 @@ export default function AboutPage() {
         <div className="text-center pb-8">
           <Link
             href="/"
-            className="inline-block px-8 py-3 bg-slate-900 text-white rounded-lg text-base font-medium hover:bg-slate-800 transition-colors"
+            className="inline-block px-8 py-3 bg-[#111] text-white text-sm font-medium tracking-wide uppercase hover:bg-[#333] transition-colors"
           >
             Search for a Lender
           </Link>
-          <p className="text-xs text-slate-400 mt-3">
+          <p className="text-[11px] text-neutral-400 mt-4">
             Built for LLM x Law Hackathon #6 at Stanford CodeX
           </p>
         </div>
