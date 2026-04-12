@@ -109,7 +109,58 @@ function buildEvidenceItems(
   ];
 }
 
-function buildCausesOfAction(evidence: EvidenceItem[]): CauseOfAction[] {
+function matchDisparateImpactCases(
+  worstRatio: number
+): EnforcementCase[] {
+  // Prefer cases with structured pricing/denial metrics ≤ the lender's ratio
+  const withMetrics = ENFORCEMENT_CASES.filter(
+    (c) =>
+      c.structuredMetrics?.pricingDisparityRatio != null &&
+      c.structuredMetrics.pricingDisparityRatio <= worstRatio
+  ).sort((a, b) => b.settlementAmount - a.settlementAmount);
+
+  // Fall back to legal theory if not enough structured matches
+  const byTheory = ENFORCEMENT_CASES.filter(
+    (c) =>
+      !c.structuredMetrics?.pricingDisparityRatio &&
+      (c.legalTheory.includes("pricing discrimination") ||
+        c.legalTheory.includes("disparate impact") ||
+        c.legalTheory.includes("steering"))
+  ).sort((a, b) => b.settlementAmount - a.settlementAmount);
+
+  return [...withMetrics, ...byTheory].slice(0, 5);
+}
+
+function matchRedliningCases(
+  lenderMmPct: number,
+  marketMmPct: number
+): EnforcementCase[] {
+  const lenderGapPts = marketMmPct - lenderMmPct; // positive = lender below market
+
+  // Prefer cases with structured geographic metrics
+  const withMetrics = getCasesByLegalTheory("redlining")
+    .filter((c) => c.structuredMetrics != null)
+    .sort((a, b) => {
+      // Sort by how comparable the metrics are
+      const aRatio = a.structuredMetrics?.peerApplicationRatio || 0;
+      const bRatio = b.structuredMetrics?.peerApplicationRatio || 0;
+      // Higher peer ratios = worse redlining, sort descending by settlement
+      return b.settlementAmount - a.settlementAmount;
+    });
+
+  const withoutMetrics = getCasesByLegalTheory("redlining")
+    .filter((c) => !c.structuredMetrics)
+    .sort((a, b) => b.settlementAmount - a.settlementAmount);
+
+  return [...withMetrics, ...withoutMetrics].slice(0, 5);
+}
+
+function buildCausesOfAction(
+  evidence: EvidenceItem[],
+  worstRatio: number,
+  lenderMmPct: number | null,
+  marketMmPct: number | null
+): CauseOfAction[] {
   const hasDisparity = evidence[0].status === "supported";
   const isOutlier = evidence[1].status === "supported";
   const isPersistent = evidence[2].status === "supported";
@@ -118,14 +169,6 @@ function buildCausesOfAction(evidence: EvidenceItem[]): CauseOfAction[] {
   const causes: CauseOfAction[] = [];
 
   if (hasDisparity) {
-    const matchingCases = ENFORCEMENT_CASES.filter(
-      (c) =>
-        c.legalTheory.includes("pricing discrimination") ||
-        c.legalTheory.includes("disparate impact") ||
-        c.legalTheory.includes("underwriting discrimination") ||
-        c.legalTheory.includes("steering")
-    ).slice(0, 5);
-
     causes.push({
       name: "Disparate Impact",
       statute: "Fair Housing Act \u00a7 3605",
@@ -138,17 +181,11 @@ function buildCausesOfAction(evidence: EvidenceItem[]): CauseOfAction[] {
         { label: "Pattern is persistent over time", met: isPersistent },
         { label: "Creditworthiness controls (requires discovery)", met: false },
       ],
-      matchingCases,
+      matchingCases: matchDisparateImpactCases(worstRatio),
     });
   }
 
   if (hasDisparity || isOutlier) {
-    const matchingCases = ENFORCEMENT_CASES.filter(
-      (c) =>
-        c.legalTheory.includes("disparate treatment") ||
-        c.legalTheory.includes("pricing discrimination")
-    ).slice(0, 5);
-
     causes.push({
       name: "ECOA Discrimination",
       statute: "15 U.S.C. \u00a7 1691",
@@ -161,12 +198,11 @@ function buildCausesOfAction(evidence: EvidenceItem[]): CauseOfAction[] {
         { label: "Multi-year persistence", met: isPersistent },
         { label: "Creditworthiness controls (requires discovery)", met: false },
       ],
-      matchingCases,
+      matchingCases: matchDisparateImpactCases(worstRatio),
     });
   }
 
-  if (hasGeoGap) {
-    const matchingCases = getCasesByLegalTheory("redlining").slice(0, 5);
+  if (hasGeoGap && lenderMmPct != null && marketMmPct != null) {
     causes.push({
       name: "Redlining",
       statute: "Fair Housing Act \u00a7 3604",
@@ -178,7 +214,7 @@ function buildCausesOfAction(evidence: EvidenceItem[]): CauseOfAction[] {
         { label: "Denial rate disparities", met: hasDisparity },
         { label: "CRA assessment area analysis (requires discovery)", met: false },
       ],
-      matchingCases,
+      matchingCases: matchRedliningCases(lenderMmPct, marketMmPct),
     });
   }
 
@@ -203,6 +239,8 @@ export default function LegalAnalysis({
   year,
 }: Props) {
   const [geoGap, setGeoGap] = useState<number | null>(null);
+  const [lenderMmPct, setLenderMmPct] = useState<number | null>(null);
+  const [marketMmPct, setMarketMmPct] = useState<number | null>(null);
   const [expandedCase, setExpandedCase] = useState<string | null>(null);
 
   useEffect(() => {
@@ -210,13 +248,18 @@ export default function LegalAnalysis({
     fetch(`/api/geographic?lei=${lei}&state=${state}&year=${year}`)
       .then((r) => r.json())
       .then((d) => {
-        if (!d.error) setGeoGap(d.gap);
+        if (!d.error) {
+          setGeoGap(d.gap);
+          setLenderMmPct(d.lender?.mmPct ?? null);
+          setMarketMmPct(d.market?.mmPct ?? null);
+        }
       })
       .catch(() => {});
   }, [lei, state, year]);
 
   const evidence = buildEvidenceItems(disparityRatios, marketRatios, trends, geoGap);
-  const causesOfAction = buildCausesOfAction(evidence);
+  const worstRatio = disparityRatios.length > 0 ? disparityRatios[0].ratio : 0;
+  const causesOfAction = buildCausesOfAction(evidence, worstRatio, lenderMmPct, marketMmPct);
   const summary = getEnforcementSummary();
   const supportedCount = evidence.filter((e) => e.status === "supported").length;
 
@@ -344,6 +387,33 @@ export default function LegalAnalysis({
                           {expandedCase === c.id && (
                             <div className="text-xs text-slate-600 mt-1 mb-2 pl-1 space-y-1">
                               <p>{c.description}</p>
+                              {c.structuredMetrics && (
+                                <div className="bg-slate-100 rounded px-2 py-1.5 text-xs">
+                                  {c.structuredMetrics.pricingDisparityRatio != null && (
+                                    <p>
+                                      <span className="font-semibold">Enforcement threshold:</span>{" "}
+                                      {c.structuredMetrics.pricingDisparityRatio}x pricing disparity
+                                      {worstRatio >= c.structuredMetrics.pricingDisparityRatio
+                                        ? " — your lender's ratio meets or exceeds this"
+                                        : ""}
+                                    </p>
+                                  )}
+                                  {c.structuredMetrics.peerApplicationRatio != null && (
+                                    <p>
+                                      <span className="font-semibold">Enforcement threshold:</span>{" "}
+                                      peers had {c.structuredMetrics.peerApplicationRatio}x more applications in minority areas
+                                    </p>
+                                  )}
+                                  {c.structuredMetrics.minorityLoanSharePct != null && (
+                                    <p>
+                                      <span className="font-semibold">Enforcement threshold:</span>{" "}
+                                      only {c.structuredMetrics.minorityLoanSharePct}% of loans in minority areas
+                                      {c.structuredMetrics.peerMinorityLoanSharePct != null &&
+                                        ` vs. ${c.structuredMetrics.peerMinorityLoanSharePct}% for peers`}
+                                    </p>
+                                  )}
+                                </div>
+                              )}
                               <p>
                                 <span className="font-semibold">Key metric:</span>{" "}
                                 {c.disparityMetric}

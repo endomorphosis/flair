@@ -24,6 +24,14 @@ export type LegalTheory =
   | "predatory lending"
   | "national origin discrimination";
 
+export interface StructuredMetrics {
+  denialRateRatio?: number;         // e.g., 2.2 (minority-to-White denial rate ratio)
+  peerApplicationRatio?: number;    // e.g., 6.0 (peers had 6x more apps in minority areas)
+  minorityLoanSharePct?: number;    // e.g., 3.0 (only 3% of lender's loans in minority areas)
+  peerMinorityLoanSharePct?: number; // e.g., 10.0 (peers had 10% in minority areas)
+  pricingDisparityRatio?: number;   // e.g., 2.1 (minority borrowers 2.1x more likely high-cost)
+}
+
 export interface EnforcementCase {
   id: string;
   caseName: string;
@@ -37,6 +45,7 @@ export interface EnforcementCase {
   geography: string;
   description: string;
   sourceUrl?: string;
+  structuredMetrics?: StructuredMetrics;
 }
 
 export const ENFORCEMENT_CASES: EnforcementCase[] = [
@@ -59,6 +68,7 @@ export const ENFORCEMENT_CASES: EnforcementCase[] = [
       "Largest residential fair lending settlement in history. Countrywide charged higher interest rates and fees to over 200,000 minority borrowers and steered more than 10,000 into costlier subprime loans despite qualifying for prime products.",
     sourceUrl:
       "https://www.justice.gov/archives/opa/pr/justice-department-reaches-335-million-settlement-resolve-allegations-lending-discrimination",
+    structuredMetrics: { pricingDisparityRatio: 3.0 },
   },
   {
     id: "wells-fargo-2012",
@@ -178,6 +188,7 @@ export const ENFORCEMENT_CASES: EnforcementCase[] = [
       "Comprehensive case combining redlining, underwriting discrimination, pricing disparities, and an explicitly discriminatory loan denial policy. CFPB used mystery shoppers to document disparate treatment.",
     sourceUrl:
       "https://www.consumerfinance.gov/about-us/newsroom/consumer-financial-protection-bureau-and-department-justice-action-requires-bancorpsouth-pay-106-million-address-discriminatory-mortgage-lending-practices/",
+    structuredMetrics: { minorityLoanSharePct: 3.2, peerMinorityLoanSharePct: 17.6 },
   },
   {
     id: "trustmark-2021",
@@ -229,6 +240,7 @@ export const ENFORCEMENT_CASES: EnforcementCase[] = [
       "First-ever redlining settlement against a non-bank lender. Joint action with PA, NJ, and DE Attorneys General. Trident concentrated offices and marketing in White neighborhoods while ignoring majority-minority areas.",
     sourceUrl:
       "https://www.consumerfinance.gov/about-us/newsroom/cfpb-doj-order-trident-mortgage-company-to-pay-more-than-22-million-for-deliberate-discrimination-against-minority-families/",
+    structuredMetrics: { minorityLoanSharePct: 12.0, peerMinorityLoanSharePct: 25.0 },
   },
   {
     id: "lakeland-bank-2022",
@@ -263,6 +275,7 @@ export const ENFORCEMENT_CASES: EnforcementCase[] = [
       "Largest DOJ redlining settlement in history at the time. City National avoided marketing and underwriting in majority-Black and Latino neighborhoods in Los Angeles.",
     sourceUrl:
       "https://www.justice.gov/usao-cdca/pr/justice-department-secures-over-31-million-city-national-bank-address-lending",
+    structuredMetrics: { peerApplicationRatio: 6.0 },
   },
   {
     id: "park-national-2023",
@@ -297,6 +310,7 @@ export const ENFORCEMENT_CASES: EnforcementCase[] = [
       "Washington Trust redlined majority-Black and Hispanic neighborhoods in Rhode Island. Peer comparison showed the bank was a dramatic outlier in serving minority communities.",
     sourceUrl:
       "https://www.justice.gov/archives/usao-ri/blog/justice-department-secures-9-million-agreement-washington-trust-company-resolve",
+    structuredMetrics: { peerApplicationRatio: 4.0 },
   },
   {
     id: "ameris-bank-2023",
@@ -314,6 +328,7 @@ export const ENFORCEMENT_CASES: EnforcementCase[] = [
       "Ameris Bank redlined predominantly Black and Hispanic neighborhoods in Jacksonville despite extensive branch presence in the area. No branches in any majority-minority neighborhood.",
     sourceUrl:
       "https://www.justice.gov/usao-mdfl/combatting-redlining-initiative-ameris-bank",
+    structuredMetrics: { peerApplicationRatio: 3.0 },
   },
   {
     id: "patriot-bank-2024",
@@ -331,6 +346,7 @@ export const ENFORCEMENT_CASES: EnforcementCase[] = [
       "Patriot Bank avoided providing mortgage lending services to majority-Black and Hispanic neighborhoods in Memphis, the same geography addressed in the earlier Trustmark settlement.",
     sourceUrl:
       "https://www.justice.gov/archives/opa/pr/justice-department-secures-agreement-patriot-bank-resolve-lending-discrimination-claims",
+    structuredMetrics: { peerApplicationRatio: 3.5 },
   },
   {
     id: "first-national-bank-pa-2024",
@@ -348,6 +364,7 @@ export const ENFORCEMENT_CASES: EnforcementCase[] = [
       "Joint DOJ and North Carolina AG action. FNB closed branches in majority-minority neighborhoods and failed to serve Black and Latino potential borrowers. 13th Combating Redlining Initiative settlement.",
     sourceUrl:
       "https://www.justice.gov/archives/opa/pr/justice-department-and-state-north-carolina-secure-135-million-agreement-first-national-bank",
+    structuredMetrics: { peerApplicationRatio: 2.5 },
   },
   {
     id: "oceanfirst-2024",
@@ -382,6 +399,7 @@ export const ENFORCEMENT_CASES: EnforcementCase[] = [
       "Fairway concentrated offices in majority-White areas, directed almost no marketing to Black neighborhoods, and internal emails mocked Black areas. Second non-depository lender redlining settlement.",
     sourceUrl:
       "https://www.consumerfinance.gov/about-us/newsroom/cfpb-and-justice-department-take-action-against-fairway-for-redlining-black-neighborhoods-in-birmingham-alabama/",
+    structuredMetrics: { minorityLoanSharePct: 3.7, peerMinorityLoanSharePct: 12.2 },
   },
   {
     id: "citadel-fcu-2024",
@@ -399,6 +417,7 @@ export const ENFORCEMENT_CASES: EnforcementCase[] = [
       "First-ever DOJ redlining settlement with a credit union. Citadel had almost no branch presence in Philadelphia, where the vast majority of minority neighborhoods in its market area are located.",
     sourceUrl:
       "https://www.justice.gov/archives/opa/pr/justice-department-secures-over-65m-citadel-federal-credit-union-address-redlining-black-and",
+    structuredMetrics: { minorityLoanSharePct: 3.0, peerMinorityLoanSharePct: 10.0, peerApplicationRatio: 3.0 },
   },
   {
     id: "mortgage-firm-2025",
@@ -488,6 +507,7 @@ export const ENFORCEMENT_CASES: EnforcementCase[] = [
       "Draper & Kramer avoided marketing to majority-minority neighborhoods and concentrated all offices in majority-White areas. Company subsequently ceased mortgage lending operations in 2024.",
     sourceUrl:
       "https://www.chicagobusiness.com/residential-real-estate/draper-kramer-pay-15m-settle-cfpb-redlining-lawsuit",
+    structuredMetrics: { peerApplicationRatio: 2.5 },
   },
 
   // ============================================================
@@ -526,6 +546,7 @@ export const ENFORCEMENT_CASES: EnforcementCase[] = [
       "City of Philadelphia sued Wells Fargo for steering minorities into high-cost, higher-risk mortgage loans. Detailed statistical analysis showed discrimination persisted even after controlling for creditworthiness.",
     sourceUrl:
       "https://whyy.org/articles/wells-fargo-will-pay-philadelphia-10m-to-settle-citys-discriminatory-lending-lawsuit/",
+    structuredMetrics: { pricingDisparityRatio: 2.1 },
   },
   {
     id: "miami-v-wells-fargo-boa-2017",
