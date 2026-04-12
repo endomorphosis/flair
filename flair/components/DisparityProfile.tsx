@@ -26,10 +26,10 @@ interface EnforcementCase {
 }
 
 const DOJ_CASES: EnforcementCase[] = [
-  { name: "DOJ v. Bancorpsouth", year: 2016, settlement: "$10.6M", metric: "Black applicants denied at 2.2x the rate of White applicants", ratio: 2.2 },
-  { name: "DOJ v. Wells Fargo", year: 2012, settlement: "$175M", metric: "Higher denial rates and pricing disparities for Black/Hispanic borrowers", ratio: 1.5 },
-  { name: "DOJ v. Fairway Independent Mortgage", year: 2024, settlement: "$8M", metric: "3x fewer applications from majority-Black neighborhoods vs. peers", ratio: 3.0 },
-  { name: "DOJ v. City National Bank", year: 2024, settlement: "$31M", metric: "Only 7% of mortgage loans in majority-Black/Latino census tracts", ratio: 2.0 },
+  { name: "DOJ v. Bancorpsouth", year: 2016, settlement: "$10.6M", metric: "African American applicants denied at 2.2x the rate of White applicants", ratio: 2.2 },
+  { name: "DOJ v. Wells Fargo", year: 2012, settlement: "$175M", metric: "Higher denial rates and pricing disparities for African American/Hispanic borrowers", ratio: 1.5 },
+  { name: "DOJ v. Fairway Independent Mortgage", year: 2024, settlement: "$8M", metric: "3x fewer applications from majority-African American neighborhoods vs. peers", ratio: 3.0 },
+  { name: "DOJ v. City National Bank", year: 2024, settlement: "$31M", metric: "Only 7% of mortgage loans in majority-African American/Latino census tracts", ratio: 2.0 },
   { name: "DOJ v. Citadel FCU", year: 2024, settlement: "$6.5M", metric: "Peers generated applications at 3x Citadel's rate in majority-minority areas", ratio: 3.0 },
 ];
 

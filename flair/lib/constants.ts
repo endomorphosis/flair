@@ -19,7 +19,7 @@ export const ACTION_DENIED = "3";
 
 export const RACE_LABELS: Record<string, string> = {
   "White": "White",
-  "Black or African American": "Black",
+  "Black or African American": "African American",
   "Asian": "Asian",
   "American Indian or Alaska Native": "Native American",
   "Native Hawaiian or Other Pacific Islander": "Pacific Islander",

@@ -60,8 +60,8 @@ export const ENFORCEMENT_CASES: EnforcementCase[] = [
     settlementAmount: 335_000_000,
     type: "DOJ",
     disparityMetric:
-      "200,000+ Black and Hispanic borrowers charged higher rates than similarly qualified White borrowers; in IL, minority borrowers were 3x as likely to be placed in subprime loans as similarly situated White borrowers",
-    racialGroupAffected: ["Black", "Hispanic"],
+      "200,000+ African American and Hispanic borrowers charged higher rates than similarly qualified White borrowers; in IL, minority borrowers were 3x as likely to be placed in subprime loans as similarly situated White borrowers",
+    racialGroupAffected: ["African American", "Hispanic"],
     legalTheory: ["pricing discrimination", "steering"],
     geography: "Nationwide (36+ states)",
     description:
@@ -78,8 +78,8 @@ export const ENFORCEMENT_CASES: EnforcementCase[] = [
     settlementAmount: 175_000_000,
     type: "DOJ",
     disparityMetric:
-      "34,000+ Black and Hispanic borrowers charged higher rates or steered into subprime loans; discrimination documented across 36 states",
-    racialGroupAffected: ["Black", "Hispanic"],
+      "34,000+ African American and Hispanic borrowers charged higher rates or steered into subprime loans; discrimination documented across 36 states",
+    racialGroupAffected: ["African American", "Hispanic"],
     legalTheory: ["pricing discrimination", "steering"],
     geography: "Nationwide (36 states + DC)",
     description:
@@ -95,8 +95,8 @@ export const ENFORCEMENT_CASES: EnforcementCase[] = [
     settlementAmount: 2_850_000,
     type: "DOJ",
     disparityMetric:
-      "Bank avoided marketing mortgage services in majority-Black neighborhoods in the Washington, D.C. metro area from 2006-2009; approximately 3,100 victims identified",
-    racialGroupAffected: ["Black", "Hispanic"],
+      "Bank avoided marketing mortgage services in majority-African American neighborhoods in the Washington, D.C. metro area from 2006-2009; approximately 3,100 victims identified",
+    racialGroupAffected: ["African American", "Hispanic"],
     legalTheory: ["redlining"],
     geography: "Washington, D.C. metro area",
     description:
@@ -112,12 +112,12 @@ export const ENFORCEMENT_CASES: EnforcementCase[] = [
     settlementAmount: 35_000_000,
     type: "DOJ/CFPB",
     disparityMetric:
-      "Black and Hispanic borrowers systematically charged higher mortgage prices than similarly creditworthy White borrowers from 2002-2008",
-    racialGroupAffected: ["Black", "Hispanic"],
+      "African American and Hispanic borrowers systematically charged higher mortgage prices than similarly creditworthy White borrowers from 2002-2008",
+    racialGroupAffected: ["African American", "Hispanic"],
     legalTheory: ["pricing discrimination"],
     geography: "Nationwide",
     description:
-      "National City Bank violated ECOA by allowing discretionary pricing that resulted in Black and Hispanic borrowers paying more for mortgage loans than similarly qualified White borrowers.",
+      "National City Bank violated ECOA by allowing discretionary pricing that resulted in African American and Hispanic borrowers paying more for mortgage loans than similarly qualified White borrowers.",
     sourceUrl:
       "https://www.consumerfinance.gov/about-us/newsroom/cfpb-and-doj-take-action-against-national-city-bank-for-discriminatory-mortgage-pricing/",
   },
@@ -129,8 +129,8 @@ export const ENFORCEMENT_CASES: EnforcementCase[] = [
     settlementAmount: 98_000_000,
     type: "DOJ/CFPB",
     disparityMetric:
-      "235,000 Black, Hispanic, and Asian/Pacific Islander borrowers charged higher auto loan interest rates than White borrowers; average victim paid $200-$300 extra over the loan term",
-    racialGroupAffected: ["Black", "Hispanic", "Asian/Pacific Islander"],
+      "235,000 African American, Hispanic, and Asian/Pacific Islander borrowers charged higher auto loan interest rates than White borrowers; average victim paid $200-$300 extra over the loan term",
+    racialGroupAffected: ["African American", "Hispanic", "Asian/Pacific Islander"],
     legalTheory: ["pricing discrimination", "disparate impact"],
     geography: "Nationwide",
     description:
@@ -146,12 +146,12 @@ export const ENFORCEMENT_CASES: EnforcementCase[] = [
     settlementAmount: 33_000_000,
     type: "DOJ/CFPB",
     disparityMetric:
-      "90%+ of branches opened/acquired during 2004-2010 expansion were outside majority-Black-and-Hispanic neighborhoods; bank drew redline excluding 4 New York counties with majority minority residents",
-    racialGroupAffected: ["Black", "Hispanic"],
+      "90%+ of branches opened/acquired during 2004-2010 expansion were outside majority-African American-and-Hispanic neighborhoods; bank drew redline excluding 4 New York counties with majority minority residents",
+    racialGroupAffected: ["African American", "Hispanic"],
     legalTheory: ["redlining"],
     geography: "NY, NJ, CT metro areas",
     description:
-      "Largest DOJ redlining settlement at the time. Hudson City avoided providing mortgage services to majority-Black and Hispanic neighborhoods during a major expansion, drawing a semi-circular redline that excluded minority communities.",
+      "Largest DOJ redlining settlement at the time. Hudson City avoided providing mortgage services to majority-African American and Hispanic neighborhoods during a major expansion, drawing a semi-circular redline that excluded minority communities.",
     sourceUrl:
       "https://www.justice.gov/archives/opa/pr/justice-department-and-consumer-financial-protection-bureau-reach-settlement-hudson-city",
   },
@@ -164,11 +164,11 @@ export const ENFORCEMENT_CASES: EnforcementCase[] = [
     type: "HUD",
     disparityMetric:
       "Compared to peer lenders, Associated made far fewer loans in majority-minority census tracts in Chicago, Milwaukee, and Minneapolis metro areas despite actively lending in nearby predominantly White tracts (2008-2010)",
-    racialGroupAffected: ["Black", "Hispanic"],
+    racialGroupAffected: ["African American", "Hispanic"],
     legalTheory: ["redlining"],
     geography: "Chicago, Milwaukee, Minneapolis metro areas",
     description:
-      "Largest HUD fair lending settlement ever. HUD found Associated Bank denied mortgage loans to Black and Hispanic applicants at higher rates and failed to serve majority-minority neighborhoods while actively lending in nearby White neighborhoods.",
+      "Largest HUD fair lending settlement ever. HUD found Associated Bank denied mortgage loans to African American and Hispanic applicants at higher rates and failed to serve majority-minority neighborhoods while actively lending in nearby White neighborhoods.",
     sourceUrl:
       "https://archives.hud.gov/news/2015/pr15-064b.cfm",
   },
@@ -180,8 +180,8 @@ export const ENFORCEMENT_CASES: EnforcementCase[] = [
     settlementAmount: 10_600_000,
     type: "DOJ/CFPB",
     disparityMetric:
-      "Only 3.2% of applications from high-minority neighborhoods vs. 17.6% for peers; BancorpSouth received 91% of applications from majority-White neighborhoods (which represent only 48.4% of Memphis tracts); matched-pair testing showed Black testers treated less favorably",
-    racialGroupAffected: ["Black"],
+      "Only 3.2% of applications from high-minority neighborhoods vs. 17.6% for peers; BancorpSouth received 91% of applications from majority-White neighborhoods (which represent only 48.4% of Memphis tracts); matched-pair testing showed African American testers treated less favorably",
+    racialGroupAffected: ["African American"],
     legalTheory: ["redlining", "underwriting discrimination", "pricing discrimination"],
     geography: "Memphis, TN MSA",
     description:
@@ -198,8 +198,8 @@ export const ENFORCEMENT_CASES: EnforcementCase[] = [
     settlementAmount: 9_000_000,
     type: "DOJ/CFPB/OCC",
     disparityMetric:
-      "From 2014-2018, Trustmark avoided marketing and providing mortgage services in majority-Black and Hispanic neighborhoods in Memphis; failed to locate branches or hire loan officers in minority communities",
-    racialGroupAffected: ["Black", "Hispanic"],
+      "From 2014-2018, Trustmark avoided marketing and providing mortgage services in majority-African American and Hispanic neighborhoods in Memphis; failed to locate branches or hire loan officers in minority communities",
+    racialGroupAffected: ["African American", "Hispanic"],
     legalTheory: ["redlining"],
     geography: "Memphis, TN",
     description:
@@ -216,7 +216,7 @@ export const ENFORCEMENT_CASES: EnforcementCase[] = [
     type: "DOJ",
     disparityMetric:
       "Bank avoided providing mortgage lending services in majority-African-American neighborhoods in the St. Louis metro area",
-    racialGroupAffected: ["Black"],
+    racialGroupAffected: ["African American"],
     legalTheory: ["redlining"],
     geography: "St. Louis, MO",
     description:
@@ -233,7 +233,7 @@ export const ENFORCEMENT_CASES: EnforcementCase[] = [
     type: "DOJ/CFPB/State AG",
     disparityMetric:
       "Only 12% of applications from majority-minority neighborhoods, though 25%+ of Philadelphia MSA neighborhoods are majority-minority; 51 of 53 offices in majority-White neighborhoods; in 80%+ minority neighborhoods, more than half of applications were from White applicants",
-    racialGroupAffected: ["Black", "Hispanic"],
+    racialGroupAffected: ["African American", "Hispanic"],
     legalTheory: ["redlining"],
     geography: "Philadelphia, PA / Camden, NJ / Wilmington, DE",
     description:
@@ -250,12 +250,12 @@ export const ENFORCEMENT_CASES: EnforcementCase[] = [
     settlementAmount: 13_000_000,
     type: "DOJ",
     disparityMetric:
-      "Bank failed to serve majority-Black and Hispanic neighborhoods in Newark metro area while actively lending in nearby majority-White neighborhoods",
-    racialGroupAffected: ["Black", "Hispanic"],
+      "Bank failed to serve majority-African American and Hispanic neighborhoods in Newark metro area while actively lending in nearby majority-White neighborhoods",
+    racialGroupAffected: ["African American", "Hispanic"],
     legalTheory: ["redlining"],
     geography: "Newark, NJ metro area",
     description:
-      "Third-largest DOJ redlining settlement at the time. Lakeland must invest $12M in a loan fund for residents of Black and Hispanic neighborhoods, plus advertising and community partnerships.",
+      "Third-largest DOJ redlining settlement at the time. Lakeland must invest $12M in a loan fund for residents of African American and Hispanic neighborhoods, plus advertising and community partnerships.",
     sourceUrl:
       "https://www.justice.gov/archives/opa/pr/justice-department-secures-agreement-lakeland-bank-address-discriminatory-redlining",
   },
@@ -267,12 +267,12 @@ export const ENFORCEMENT_CASES: EnforcementCase[] = [
     settlementAmount: 31_000_000,
     type: "DOJ",
     disparityMetric:
-      "From 2017-2020, peer banks received 6x the number of mortgage applications in majority-Black and Latino LA neighborhoods compared to City National; bank opened just one branch in a majority-minority neighborhood in 20 years and assigned no mortgage loan officers there",
-    racialGroupAffected: ["Black", "Hispanic/Latino"],
+      "From 2017-2020, peer banks received 6x the number of mortgage applications in majority-African American and Latino LA neighborhoods compared to City National; bank opened just one branch in a majority-minority neighborhood in 20 years and assigned no mortgage loan officers there",
+    racialGroupAffected: ["African American", "Hispanic/Latino"],
     legalTheory: ["redlining"],
     geography: "Los Angeles County, CA",
     description:
-      "Largest DOJ redlining settlement in history at the time. City National avoided marketing and underwriting in majority-Black and Latino neighborhoods in Los Angeles.",
+      "Largest DOJ redlining settlement in history at the time. City National avoided marketing and underwriting in majority-African American and Latino neighborhoods in Los Angeles.",
     sourceUrl:
       "https://www.justice.gov/usao-cdca/pr/justice-department-secures-over-31-million-city-national-bank-address-lending",
     structuredMetrics: { peerApplicationRatio: 6.0 },
@@ -285,8 +285,8 @@ export const ENFORCEMENT_CASES: EnforcementCase[] = [
     settlementAmount: 9_000_000,
     type: "DOJ",
     disparityMetric:
-      "From 2015-2021, the bank avoided providing mortgage lending services to majority-Black and Hispanic neighborhoods in the Columbus, OH metro area",
-    racialGroupAffected: ["Black", "Hispanic"],
+      "From 2015-2021, the bank avoided providing mortgage lending services to majority-African American and Hispanic neighborhoods in the Columbus, OH metro area",
+    racialGroupAffected: ["African American", "Hispanic"],
     legalTheory: ["redlining"],
     geography: "Columbus, OH",
     description:
@@ -302,12 +302,12 @@ export const ENFORCEMENT_CASES: EnforcementCase[] = [
     settlementAmount: 9_000_000,
     type: "DOJ",
     disparityMetric:
-      "Peer banks received nearly 4x as many applications annually in majority-Black and Hispanic neighborhoods compared to Washington Trust over a 6-year period; disparities were statistically significant in every year examined",
-    racialGroupAffected: ["Black", "Hispanic"],
+      "Peer banks received nearly 4x as many applications annually in majority-African American and Hispanic neighborhoods compared to Washington Trust over a 6-year period; disparities were statistically significant in every year examined",
+    racialGroupAffected: ["African American", "Hispanic"],
     legalTheory: ["redlining"],
     geography: "Rhode Island",
     description:
-      "Washington Trust redlined majority-Black and Hispanic neighborhoods in Rhode Island. Peer comparison showed the bank was a dramatic outlier in serving minority communities.",
+      "Washington Trust redlined majority-African American and Hispanic neighborhoods in Rhode Island. Peer comparison showed the bank was a dramatic outlier in serving minority communities.",
     sourceUrl:
       "https://www.justice.gov/archives/usao-ri/blog/justice-department-secures-9-million-agreement-washington-trust-company-resolve",
     structuredMetrics: { peerApplicationRatio: 4.0 },
@@ -320,12 +320,12 @@ export const ENFORCEMENT_CASES: EnforcementCase[] = [
     settlementAmount: 9_000_000,
     type: "DOJ",
     disparityMetric:
-      "Peer lenders generated applications in majority-Black and Hispanic neighborhoods at 3x the rate of Ameris; despite operating 18 branches in Jacksonville, Ameris never operated a branch in a majority-minority neighborhood",
-    racialGroupAffected: ["Black", "Hispanic"],
+      "Peer lenders generated applications in majority-African American and Hispanic neighborhoods at 3x the rate of Ameris; despite operating 18 branches in Jacksonville, Ameris never operated a branch in a majority-minority neighborhood",
+    racialGroupAffected: ["African American", "Hispanic"],
     legalTheory: ["redlining"],
     geography: "Jacksonville, FL",
     description:
-      "Ameris Bank redlined predominantly Black and Hispanic neighborhoods in Jacksonville despite extensive branch presence in the area. No branches in any majority-minority neighborhood.",
+      "Ameris Bank redlined predominantly African American and Hispanic neighborhoods in Jacksonville despite extensive branch presence in the area. No branches in any majority-minority neighborhood.",
     sourceUrl:
       "https://www.justice.gov/usao-mdfl/combatting-redlining-initiative-ameris-bank",
     structuredMetrics: { peerApplicationRatio: 3.0 },
@@ -338,12 +338,12 @@ export const ENFORCEMENT_CASES: EnforcementCase[] = [
     settlementAmount: 1_900_000,
     type: "DOJ",
     disparityMetric:
-      "From 2015-2020, peer banks received nearly 3.5x as many loan applications in majority-Black and Hispanic neighborhoods in Memphis as Patriot Bank",
-    racialGroupAffected: ["Black", "Hispanic"],
+      "From 2015-2020, peer banks received nearly 3.5x as many loan applications in majority-African American and Hispanic neighborhoods in Memphis as Patriot Bank",
+    racialGroupAffected: ["African American", "Hispanic"],
     legalTheory: ["redlining"],
     geography: "Memphis, TN",
     description:
-      "Patriot Bank avoided providing mortgage lending services to majority-Black and Hispanic neighborhoods in Memphis, the same geography addressed in the earlier Trustmark settlement.",
+      "Patriot Bank avoided providing mortgage lending services to majority-African American and Hispanic neighborhoods in Memphis, the same geography addressed in the earlier Trustmark settlement.",
     sourceUrl:
       "https://www.justice.gov/archives/opa/pr/justice-department-secures-agreement-patriot-bank-resolve-lending-discrimination-claims",
     structuredMetrics: { peerApplicationRatio: 3.5 },
@@ -357,11 +357,11 @@ export const ENFORCEMENT_CASES: EnforcementCase[] = [
     type: "DOJ/State AG",
     disparityMetric:
       "Peer lenders generated applications in minority neighborhoods at 2.5x the rate of FNB in Charlotte and 4x the rate in Winston-Salem (2017-2021); bank closed branches in majority-minority neighborhoods",
-    racialGroupAffected: ["Black", "Hispanic"],
+    racialGroupAffected: ["African American", "Hispanic"],
     legalTheory: ["redlining"],
     geography: "Charlotte and Winston-Salem, NC",
     description:
-      "Joint DOJ and North Carolina AG action. FNB closed branches in majority-minority neighborhoods and failed to serve Black and Latino potential borrowers. 13th Combating Redlining Initiative settlement.",
+      "Joint DOJ and North Carolina AG action. FNB closed branches in majority-minority neighborhoods and failed to serve African American and Latino potential borrowers. 13th Combating Redlining Initiative settlement.",
     sourceUrl:
       "https://www.justice.gov/archives/opa/pr/justice-department-and-state-north-carolina-secure-135-million-agreement-first-national-bank",
     structuredMetrics: { peerApplicationRatio: 2.5 },
@@ -375,7 +375,7 @@ export const ENFORCEMENT_CASES: EnforcementCase[] = [
     type: "DOJ/HUD",
     disparityMetric:
       "From 2018-2022, OceanFirst disproportionately focused outreach on majority-White communities, operated branches only in majority-White neighborhoods, and closed its only locations in majority-minority areas of Middlesex, Monmouth, and Ocean counties",
-    racialGroupAffected: ["Black", "Hispanic", "Asian"],
+    racialGroupAffected: ["African American", "Hispanic", "Asian"],
     legalTheory: ["redlining"],
     geography: "Middlesex, Monmouth, and Ocean Counties, NJ",
     description:
@@ -391,12 +391,12 @@ export const ENFORCEMENT_CASES: EnforcementCase[] = [
     settlementAmount: 8_000_000,
     type: "DOJ/CFPB",
     disparityMetric:
-      "Only 3.7% of Fairway's applications were for properties in majority-Black areas vs. 12.2% for peers; in neighborhoods 80%+ Black, Fairway granted loans at less than 1/8 the rate of competitors; less than 3% of direct mail advertising reached majority-Black areas",
-    racialGroupAffected: ["Black"],
+      "Only 3.7% of Fairway's applications were for properties in majority-African American areas vs. 12.2% for peers; in neighborhoods 80%+ African American, Fairway granted loans at less than 1/8 the rate of competitors; less than 3% of direct mail advertising reached majority-African American areas",
+    racialGroupAffected: ["African American"],
     legalTheory: ["redlining"],
     geography: "Birmingham, AL",
     description:
-      "Fairway concentrated offices in majority-White areas, directed almost no marketing to Black neighborhoods, and internal emails mocked Black areas. Second non-depository lender redlining settlement.",
+      "Fairway concentrated offices in majority-White areas, directed almost no marketing to African American neighborhoods, and internal emails mocked African American areas. Second non-depository lender redlining settlement.",
     sourceUrl:
       "https://www.consumerfinance.gov/about-us/newsroom/cfpb-and-justice-department-take-action-against-fairway-for-redlining-black-neighborhoods-in-birmingham-alabama/",
     structuredMetrics: { minorityLoanSharePct: 3.7, peerMinorityLoanSharePct: 12.2 },
@@ -409,8 +409,8 @@ export const ENFORCEMENT_CASES: EnforcementCase[] = [
     settlementAmount: 6_500_000,
     type: "DOJ",
     disparityMetric:
-      "Only 3% of Citadel's HMDA loans went to majority-Black/Hispanic areas vs. 10% for peers (2017-2021); peer lenders generated applications and originated loans in minority neighborhoods at 3x+ the rate of Citadel; no branches in Philadelphia despite 75% of majority-minority neighborhoods being located there",
-    racialGroupAffected: ["Black", "Hispanic"],
+      "Only 3% of Citadel's HMDA loans went to majority-African American/Hispanic areas vs. 10% for peers (2017-2021); peer lenders generated applications and originated loans in minority neighborhoods at 3x+ the rate of Citadel; no branches in Philadelphia despite 75% of majority-minority neighborhoods being located there",
+    racialGroupAffected: ["African American", "Hispanic"],
     legalTheory: ["redlining"],
     geography: "Philadelphia, PA metro area",
     description:
@@ -427,8 +427,8 @@ export const ENFORCEMENT_CASES: EnforcementCase[] = [
     settlementAmount: 1_750_000,
     type: "DOJ",
     disparityMetric:
-      "From 2016-2021, The Mortgage Firm located offices in predominantly White neighborhoods and took inadequate steps to market to Black and Hispanic neighborhoods across Miami-Dade, Broward, and Palm Beach counties",
-    racialGroupAffected: ["Black", "Hispanic"],
+      "From 2016-2021, The Mortgage Firm located offices in predominantly White neighborhoods and took inadequate steps to market to African American and Hispanic neighborhoods across Miami-Dade, Broward, and Palm Beach counties",
+    racialGroupAffected: ["African American", "Hispanic"],
     legalTheory: ["redlining"],
     geography: "Miami-Fort Lauderdale-West Palm Beach, FL",
     description:
@@ -482,12 +482,12 @@ export const ENFORCEMENT_CASES: EnforcementCase[] = [
     settlementAmount: 105_000,
     type: "CFPB",
     disparityMetric:
-      "Townstone discouraged prospective Black applicants through derogatory statements on radio shows and podcasts, referring to Chicago's South Side as 'hoodlum weekend' and a grocery store in a Black neighborhood as 'Jungle Jewel'",
-    racialGroupAffected: ["Black"],
+      "Townstone discouraged prospective African American applicants through derogatory statements on radio shows and podcasts, referring to Chicago's South Side as 'hoodlum weekend' and a grocery store in a African American neighborhood as 'Jungle Jewel'",
+    racialGroupAffected: ["African American"],
     legalTheory: ["redlining", "disparate treatment"],
     geography: "Chicago, IL MSA",
     description:
-      "First-ever redlining case against a nonbank mortgage lender/broker. Townstone used radio broadcasts and podcasts to discourage Black applicants. Court refused to vacate settlement despite joint request from CFPB and Townstone in 2025.",
+      "First-ever redlining case against a nonbank mortgage lender/broker. Townstone used radio broadcasts and podcasts to discourage African American applicants. Court refused to vacate settlement despite joint request from CFPB and Townstone in 2025.",
     sourceUrl:
       "https://www.consumerfinance.gov/about-us/newsroom/cfpb-files-suit-against-mortgage-creditor-discriminatory-mortgage-lending-practices/",
   },
@@ -499,8 +499,8 @@ export const ENFORCEMENT_CASES: EnforcementCase[] = [
     settlementAmount: 1_500_000,
     type: "CFPB",
     disparityMetric:
-      "Peers generated applications in majority-Black and Hispanic Chicago neighborhoods at 2.5x the rate of Draper & Kramer (2019-2021); all offices located in majority-White neighborhoods; no Spanish-language marketing until May 2021",
-    racialGroupAffected: ["Black", "Hispanic"],
+      "Peers generated applications in majority-African American and Hispanic Chicago neighborhoods at 2.5x the rate of Draper & Kramer (2019-2021); all offices located in majority-White neighborhoods; no Spanish-language marketing until May 2021",
+    racialGroupAffected: ["African American", "Hispanic"],
     legalTheory: ["redlining"],
     geography: "Chicago and Boston MSAs",
     description:
@@ -521,8 +521,8 @@ export const ENFORCEMENT_CASES: EnforcementCase[] = [
     settlementAmount: 53_000_000,
     type: "Private",
     disparityMetric:
-      "Investigation of 2,300+ Fannie-owned foreclosed properties (2011-2015) with 49,000 photos showed homes in Black and Latino neighborhoods were 2-2.5x more likely to be poorly maintained than homes in White communities",
-    racialGroupAffected: ["Black", "Hispanic/Latino"],
+      "Investigation of 2,300+ Fannie-owned foreclosed properties (2011-2015) with 49,000 photos showed homes in African American and Latino neighborhoods were 2-2.5x more likely to be poorly maintained than homes in White communities",
+    racialGroupAffected: ["African American", "Hispanic/Latino"],
     legalTheory: ["REO maintenance discrimination"],
     geography: "39 metropolitan areas nationwide",
     description:
@@ -538,8 +538,8 @@ export const ENFORCEMENT_CASES: EnforcementCase[] = [
     settlementAmount: 10_000_000,
     type: "Private",
     disparityMetric:
-      "23.3% of loans to minority borrowers were high-cost/high-risk vs. 7.6% for White borrowers; Black borrowers 2.1x more likely to receive high-cost loans; Black borrowers with FICO > 660 were 2.5x more likely; loans in minority neighborhoods 4.7x more likely to result in foreclosure",
-    racialGroupAffected: ["Black", "Hispanic"],
+      "23.3% of loans to minority borrowers were high-cost/high-risk vs. 7.6% for White borrowers; African American borrowers 2.1x more likely to receive high-cost loans; African American borrowers with FICO > 660 were 2.5x more likely; loans in minority neighborhoods 4.7x more likely to result in foreclosure",
+    racialGroupAffected: ["African American", "Hispanic"],
     legalTheory: ["pricing discrimination", "steering", "disparate impact"],
     geography: "Philadelphia, PA",
     description:
@@ -556,8 +556,8 @@ export const ENFORCEMENT_CASES: EnforcementCase[] = [
     settlementAmount: 0,
     type: "Private",
     disparityMetric:
-      "Banks targeted predatory practices at Black and Latino neighborhoods, lending on worse terms than equally creditworthy non-minority borrowers, inducing defaults by failing to extend fair refinancing and loan modifications",
-    racialGroupAffected: ["Black", "Hispanic/Latino"],
+      "Banks targeted predatory practices at African American and Latino neighborhoods, lending on worse terms than equally creditworthy non-minority borrowers, inducing defaults by failing to extend fair refinancing and loan modifications",
+    racialGroupAffected: ["African American", "Hispanic/Latino"],
     legalTheory: ["reverse redlining", "disparate impact", "pricing discrimination"],
     geography: "Miami, FL",
     description:
@@ -594,12 +594,12 @@ export const ENFORCEMENT_CASES: EnforcementCase[] = [
     settlementAmount: 3_555_000,
     type: "DOJ",
     disparityMetric:
-      "Approximately 600 Black and Hispanic borrowers charged more for loans based on race or national origin",
-    racialGroupAffected: ["Black", "Hispanic"],
+      "Approximately 600 African American and Hispanic borrowers charged more for loans based on race or national origin",
+    racialGroupAffected: ["African American", "Hispanic"],
     legalTheory: ["pricing discrimination"],
     geography: "New York metro area",
     description:
-      "GFI charged Black and Hispanic borrowers higher prices for mortgage loans than similarly situated non-Hispanic White borrowers through discretionary pricing policies.",
+      "GFI charged African American and Hispanic borrowers higher prices for mortgage loans than similarly situated non-Hispanic White borrowers through discretionary pricing policies.",
     sourceUrl:
       "https://www.justice.gov/archives/opa/pr/justice-department-reaches-lending-discrimination-settlement-gfi-mortgage-bankers-inc",
   },
@@ -611,8 +611,8 @@ export const ENFORCEMENT_CASES: EnforcementCase[] = [
     settlementAmount: 3_000_000,
     type: "DOJ",
     disparityMetric:
-      "Statistical analysis showed Black, Hispanic, female, and older borrowers systematically charged higher prices for mortgage loans than younger White male borrowers (1991-1994)",
-    racialGroupAffected: ["Black", "Hispanic"],
+      "Statistical analysis showed African American, Hispanic, female, and older borrowers systematically charged higher prices for mortgage loans than younger White male borrowers (1991-1994)",
+    racialGroupAffected: ["African American", "Hispanic"],
     legalTheory: ["pricing discrimination", "disparate impact"],
     geography: "Southern California",
     description:
