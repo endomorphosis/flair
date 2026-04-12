@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import NavBar from "@/components/NavBar";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -25,7 +26,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
-      <body className="font-sans antialiased">{children}</body>
+      <body className="font-sans antialiased min-h-screen flex flex-col">
+        <NavBar />
+        <div className="flex-1">{children}</div>
+        <footer className="bg-white border-t border-slate-200 py-6 text-center text-xs text-slate-400 print:hidden">
+          Data source: CFPB HMDA Data Browser | Built for LLM x Law Hackathon #6 at Stanford CodeX
+        </footer>
+      </body>
     </html>
   );
 }

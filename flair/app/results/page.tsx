@@ -22,6 +22,15 @@ interface TrendYear {
   disparityRatios: DisparityRatio[];
 }
 
+const TABS = [
+  { id: "disparity", label: "Disparity Profile" },
+  { id: "peers", label: "Peers & Trends" },
+  { id: "geographic", label: "Geographic" },
+  { id: "legal", label: "Legal" },
+] as const;
+
+type TabId = (typeof TABS)[number]["id"];
+
 function ResultsContent() {
   const searchParams = useSearchParams();
   const lei = searchParams.get("lei") || "";
@@ -34,6 +43,7 @@ function ResultsContent() {
   const geoLabel = msaName || US_STATES[state] || state;
   const geoParam = msa ? `msa=${msa}` : `state=${state}`;
 
+  const [activeTab, setActiveTab] = useState<TabId>("disparity");
   const [disparity, setDisparity] = useState<DisparityData | null>(null);
   const [peers, setPeers] = useState<DisparityData | null>(null);
   const [trends, setTrends] = useState<TrendYear[] | null>(null);
@@ -64,24 +74,19 @@ function ResultsContent() {
 
   if (!lei || (!state && !msa)) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+      <div className="min-h-[calc(100vh-3.5rem)] bg-slate-50 flex items-center justify-center">
         <p className="text-slate-500">Missing lender or geography parameter.</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      {/* Header */}
-      <header className="bg-slate-900 text-white">
-        <div className="max-w-5xl mx-auto px-6 py-6">
-          <div className="flex items-center justify-between">
-            <a
-              href="/"
-              className="text-sm text-slate-400 hover:text-white transition-colors print:hidden"
-            >
-              &larr; Back to Search
-            </a>
+    <div className="min-h-[calc(100vh-3.5rem)] bg-slate-50">
+      {/* Results header */}
+      <div className="bg-slate-800 text-white">
+        <div className="max-w-5xl mx-auto px-6 py-5">
+          <div className="flex items-center justify-between mb-1">
+            <h1 className="text-xl font-bold">{name}</h1>
             <button
               onClick={() => window.print()}
               className="text-sm px-4 py-1.5 bg-white/10 hover:bg-white/20 rounded-lg transition-colors print:hidden"
@@ -89,7 +94,6 @@ function ResultsContent() {
               Export PDF
             </button>
           </div>
-          <h1 className="text-2xl font-bold mt-2">{name}</h1>
           <p className="text-slate-400 text-sm">
             {geoLabel} | {year} HMDA Data
             {disparity && (
@@ -97,7 +101,28 @@ function ResultsContent() {
             )}
           </p>
         </div>
-      </header>
+      </div>
+
+      {/* Tabs */}
+      <div className="bg-white border-b border-slate-200 print:hidden">
+        <div className="max-w-5xl mx-auto px-6">
+          <div className="flex gap-1">
+            {TABS.map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
+                  activeTab === tab.id
+                    ? "border-slate-900 text-slate-900"
+                    : "border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300"
+                }`}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
 
       <main className="max-w-5xl mx-auto px-6 py-8">
         {loading && (
@@ -116,93 +141,63 @@ function ResultsContent() {
         )}
 
         {!loading && !error && disparity && (
-          <div className="space-y-8">
-            {/* Disparity ratios */}
-            <DisparityProfile
-              ratios={disparity.disparityRatios}
-              lenderName={name}
-              state={geoLabel}
-              year={year}
-            />
-
-            {/* Denial rate chart */}
-            <DenialRateChart
-              data={disparity.denialRates}
-              title={`Denial Rates by Race — ${name}, ${US_STATES[state] || state} (${year})`}
-            />
-
-            {/* Peer comparison */}
-            {peers && peers.disparityRatios.length > 0 && (
-              <PeerComparison
-                lenderRatios={disparity.disparityRatios}
-                marketRatios={peers.disparityRatios}
+          <>
+            {/* Tab: Disparity Profile */}
+            <div className={activeTab === "disparity" ? "space-y-8" : "hidden print:block print:space-y-8"}>
+              <DisparityProfile
+                ratios={disparity.disparityRatios}
                 lenderName={name}
                 state={geoLabel}
-              />
-            )}
-
-            {/* Trend */}
-            {trends && trends.length > 0 && (
-              <TrendChart trends={trends} lenderName={name} />
-            )}
-
-            {/* Geographic lending pattern analysis */}
-            {state && (
-              <GeographicAnalysis
-                lei={lei}
-                state={state}
                 year={year}
-                lenderName={name}
-                geoLabel={geoLabel}
               />
-            )}
-
-            {/* Legal layer — case law + statutory provisions */}
-            <LegalSidebar lenderName={name} />
-
-            {/* Methodology */}
-            <div className="bg-white rounded-xl border border-slate-200 p-6 text-sm text-slate-600">
-              <h3 className="text-lg font-semibold text-slate-900 mb-2">
-                Methodology
-              </h3>
-              <ul className="list-disc pl-5 space-y-1">
-                <li>
-                  Data source: CFPB HMDA Data Browser API (federal data
-                  reported by ~5,000 mortgage lenders under the Home Mortgage
-                  Disclosure Act)
-                </li>
-                <li>
-                  Denial rate = applications denied / (applications denied +
-                  applications originated) for each racial group
-                </li>
-                <li>
-                  Disparity ratio = denial rate for group / denial rate for
-                  White applicants
-                </li>
-                <li>
-                  Groups with fewer than 30 applications are flagged as
-                  low-sample (n&lt;30) and hidden by default in the chart, but
-                  can be toggled on via checkboxes. Groups below this
-                  threshold are excluded from disparity ratio calculations.
-                </li>
-                <li>
-                  Peer comparison uses statewide aggregate denial rates across
-                  all lenders in the same state
-                </li>
-                <li>
-                  Case law powered by Midpage (keyword search across 13M+
-                  federal court opinions). Statutory provisions powered by
-                  TrustFoundry (search across 8M+ laws and regulations).
-                </li>
-                <li>
-                  This tool provides statistical screening only. It does not
-                  control for creditworthiness factors (credit score, DTI, LTV).
-                  Regression analysis by a qualified expert is needed for
-                  litigation.
-                </li>
-              </ul>
+              <DenialRateChart
+                data={disparity.denialRates}
+                title={`Denial Rates by Race — ${name}, ${geoLabel} (${year})`}
+              />
             </div>
-          </div>
+
+            {/* Tab: Peers & Trends */}
+            <div className={activeTab === "peers" ? "space-y-8" : "hidden print:block print:space-y-8"}>
+              {peers && peers.disparityRatios.length > 0 ? (
+                <PeerComparison
+                  lenderRatios={disparity.disparityRatios}
+                  marketRatios={peers.disparityRatios}
+                  lenderName={name}
+                  state={geoLabel}
+                />
+              ) : (
+                <div className="bg-slate-50 rounded-xl border border-slate-200 p-6 text-center text-slate-500">
+                  Insufficient peer data for comparison.
+                </div>
+              )}
+              {trends && trends.length > 0 && (
+                <TrendChart trends={trends} lenderName={name} />
+              )}
+            </div>
+
+            {/* Tab: Geographic */}
+            <div className={activeTab === "geographic" ? "" : "hidden print:block"}>
+              {state ? (
+                <GeographicAnalysis
+                  lei={lei}
+                  state={state}
+                  year={year}
+                  lenderName={name}
+                  geoLabel={geoLabel}
+                />
+              ) : (
+                <div className="bg-slate-50 rounded-xl border border-slate-200 p-6 text-center text-slate-500">
+                  Geographic analysis requires a state selection (not available
+                  for MSA-only queries).
+                </div>
+              )}
+            </div>
+
+            {/* Tab: Legal */}
+            <div className={activeTab === "legal" ? "" : "hidden print:block"}>
+              <LegalSidebar lenderName={name} />
+            </div>
+          </>
         )}
       </main>
 
@@ -211,10 +206,6 @@ function ResultsContent() {
         Generated by FLAIR (Fair Lending AI Report) |
         Data source: CFPB HMDA Data Browser | flair-steel.vercel.app
       </div>
-
-      <footer className="bg-white border-t border-slate-200 py-6 text-center text-xs text-slate-400">
-        Data source: CFPB HMDA Data Browser | Built for LLM x Law Hackathon #6 at Stanford CodeX
-      </footer>
     </div>
   );
 }
@@ -223,7 +214,7 @@ export default function ResultsPage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <div className="min-h-[calc(100vh-3.5rem)] bg-slate-50 flex items-center justify-center">
           <p className="text-slate-500">Loading...</p>
         </div>
       }
