@@ -2,35 +2,16 @@
 
 import { useEffect, useState } from "react";
 import { DisparityRatio } from "@/lib/computations";
+import {
+  ENFORCEMENT_CASES,
+  EnforcementCase,
+  getCasesByLegalTheory,
+  getEnforcementSummary,
+} from "@/lib/enforcement-cases";
 
 interface TrendYear {
   year: number;
   disparityRatios: DisparityRatio[];
-}
-
-interface CaseDescription {
-  primary_holding: string;
-  key_facts_that_mattered: string;
-  legal_principle_created_modified: string;
-  legal_test_established: string;
-  context_summary: string;
-}
-
-interface CaseResult {
-  id: string;
-  case_name: string;
-  court?: string;
-  date_filed?: string | null;
-  snippet: string;
-  source: "midpage" | "trustfoundry";
-  url?: string;
-  // Enriched fields from Midpage
-  citations?: { cited_as: string }[];
-  citation_count?: number;
-  overall_treatment?: string;
-  judge_name?: string;
-  // Enriched fields from TrustFoundry
-  caseDescription?: CaseDescription | null;
 }
 
 interface EvidenceItem {
@@ -46,6 +27,7 @@ interface CauseOfAction {
   description: string;
   evidenceSupport: "strong" | "partial" | "insufficient";
   elements: { label: string; met: boolean }[];
+  matchingCases: EnforcementCase[];
 }
 
 interface Props {
@@ -68,19 +50,16 @@ function buildEvidenceItems(
   const worst = disparityRatios[0];
   const hasDisparity = worst && worst.ratio >= 1.5;
 
-  // Check if lender is outlier vs market
   const isOutlier = disparityRatios.some((lr) => {
     const mr = marketRatios.find((m) => m.group === lr.group);
     return mr && lr.ratio - mr.ratio > 0.1;
   });
 
-  // Check multi-year persistence
   const persistentYears = trends.filter(
     (t) => t.disparityRatios.length > 0 && t.disparityRatios[0].ratio >= 1.5
   ).length;
   const isPersistent = persistentYears >= 2;
 
-  // Geographic gap
   const hasGeoGap = geoGap !== null && geoGap < -5;
 
   return [
@@ -108,7 +87,7 @@ function buildEvidenceItems(
     },
     {
       label: "Geographic lending gap",
-      status: hasGeoGap ? "supported" : geoGap === null ? "not_supported" : "not_supported",
+      status: hasGeoGap ? "supported" : "not_supported",
       detail:
         geoGap !== null
           ? `Lender is ${Math.abs(geoGap).toFixed(1)} pts ${geoGap < 0 ? "below" : "above"} market in majority-minority counties`
@@ -139,6 +118,14 @@ function buildCausesOfAction(evidence: EvidenceItem[]): CauseOfAction[] {
   const causes: CauseOfAction[] = [];
 
   if (hasDisparity) {
+    const matchingCases = ENFORCEMENT_CASES.filter(
+      (c) =>
+        c.legalTheory.includes("pricing discrimination") ||
+        c.legalTheory.includes("disparate impact") ||
+        c.legalTheory.includes("underwriting discrimination") ||
+        c.legalTheory.includes("steering")
+    ).slice(0, 5);
+
     causes.push({
       name: "Disparate Impact",
       statute: "Fair Housing Act \u00a7 3605",
@@ -151,10 +138,17 @@ function buildCausesOfAction(evidence: EvidenceItem[]): CauseOfAction[] {
         { label: "Pattern is persistent over time", met: isPersistent },
         { label: "Creditworthiness controls (requires discovery)", met: false },
       ],
+      matchingCases,
     });
   }
 
   if (hasDisparity || isOutlier) {
+    const matchingCases = ENFORCEMENT_CASES.filter(
+      (c) =>
+        c.legalTheory.includes("disparate treatment") ||
+        c.legalTheory.includes("pricing discrimination")
+    ).slice(0, 5);
+
     causes.push({
       name: "ECOA Discrimination",
       statute: "15 U.S.C. \u00a7 1691",
@@ -167,10 +161,12 @@ function buildCausesOfAction(evidence: EvidenceItem[]): CauseOfAction[] {
         { label: "Multi-year persistence", met: isPersistent },
         { label: "Creditworthiness controls (requires discovery)", met: false },
       ],
+      matchingCases,
     });
   }
 
   if (hasGeoGap) {
+    const matchingCases = getCasesByLegalTheory("redlining").slice(0, 5);
     causes.push({
       name: "Redlining",
       statute: "Fair Housing Act \u00a7 3604",
@@ -182,60 +178,18 @@ function buildCausesOfAction(evidence: EvidenceItem[]): CauseOfAction[] {
         { label: "Denial rate disparities", met: hasDisparity },
         { label: "CRA assessment area analysis (requires discovery)", met: false },
       ],
+      matchingCases,
     });
   }
 
   return causes;
 }
 
-function buildMidpageQueries(evidence: EvidenceItem[]): string[] {
-  const queries: string[] = [];
-  if (evidence[0].status === "supported") {
-    queries.push(
-      '"disparate impact" AND "denial rate" AND ("mortgage" OR "lending") AND ("ECOA" OR "Fair Housing Act")'
-    );
-  }
-  if (evidence[3].status === "supported") {
-    queries.push(
-      '"redlining" AND "Fair Housing Act" AND ("majority-minority" OR "majority-Black")'
-    );
-  }
-  if (evidence[2].status === "supported") {
-    queries.push('"pattern or practice" AND "fair lending" AND "mortgage"');
-  }
-  if (queries.length === 0) {
-    queries.push('"fair lending" AND "ECOA" AND "mortgage" AND "denial"');
-  }
-  return queries;
-}
-
-function buildFactPattern(
-  lenderName: string,
-  disparityRatios: DisparityRatio[],
-  marketRatios: DisparityRatio[],
-  geoGap: number | null
-): string {
-  const parts: string[] = [];
-  const worst = disparityRatios[0];
-  if (worst) {
-    parts.push(
-      `Mortgage lender denied ${worst.label} applicants at ${worst.ratio.toFixed(1)}x the rate of White applicants`
-    );
-  }
-  const worstMarket = worst
-    ? marketRatios.find((m) => m.group === worst.group)
-    : null;
-  if (worstMarket) {
-    parts.push(
-      `Peer lenders in the same geography showed a ${worstMarket.ratio.toFixed(1)}x ratio`
-    );
-  }
-  if (geoGap !== null && geoGap < -5) {
-    parts.push(
-      `The lender's share of applications in majority-minority counties was ${Math.abs(geoGap).toFixed(0)} percentage points below the market average`
-    );
-  }
-  return parts.join(". ") + ".";
+function formatDollars(amount: number): string {
+  if (amount >= 1_000_000_000) return `$${(amount / 1_000_000_000).toFixed(1)}B`;
+  if (amount >= 1_000_000) return `$${(amount / 1_000_000).toFixed(0)}M`;
+  if (amount >= 1_000) return `$${(amount / 1_000).toFixed(0)}K`;
+  return `$${amount}`;
 }
 
 export default function LegalAnalysis({
@@ -248,12 +202,9 @@ export default function LegalAnalysis({
   lei,
   year,
 }: Props) {
-  const [cases, setCases] = useState<CaseResult[]>([]);
-  const [casesLoading, setCasesLoading] = useState(true);
-  const [expandedCase, setExpandedCase] = useState<string | null>(null);
   const [geoGap, setGeoGap] = useState<number | null>(null);
+  const [expandedCase, setExpandedCase] = useState<string | null>(null);
 
-  // Fetch geographic gap for evidence assessment
   useEffect(() => {
     if (!state) return;
     fetch(`/api/geographic?lei=${lei}&state=${state}&year=${year}`)
@@ -266,92 +217,7 @@ export default function LegalAnalysis({
 
   const evidence = buildEvidenceItems(disparityRatios, marketRatios, trends, geoGap);
   const causesOfAction = buildCausesOfAction(evidence);
-
-  // Fetch cases from both Midpage and TrustFoundry
-  useEffect(() => {
-    setCasesLoading(true);
-    const midpageQueries = buildMidpageQueries(evidence);
-    const factPattern = buildFactPattern(
-      lenderName,
-      disparityRatios,
-      marketRatios,
-      geoGap
-    );
-
-    const midpagePromises = midpageQueries.map((q) =>
-      fetch(`/api/midpage?query=${encodeURIComponent(q)}`)
-        .then((r) => r.json())
-        .then((d): CaseResult[] =>
-          (d.results || []).map(
-            (r: {
-              opinion_id: string;
-              case_name: string;
-              court_abbreviation?: string;
-              court_name?: string;
-              date_filed: string | null;
-              snippet: string;
-              citations?: { cited_as: string }[];
-              citation_count?: number;
-              overall_treatment?: string;
-              judge_name?: string;
-            }) => ({
-              id: `mp-${r.opinion_id}`,
-              case_name: r.case_name,
-              court: r.court_abbreviation || r.court_name,
-              date_filed: r.date_filed,
-              snippet: r.snippet,
-              source: "midpage" as const,
-              citations: r.citations,
-              citation_count: r.citation_count,
-              overall_treatment: r.overall_treatment,
-              judge_name: r.judge_name,
-            })
-          )
-        )
-        .catch(() => [] as CaseResult[])
-    );
-
-    const tfPromise = fetch(
-      `/api/trustfoundry?facts=${encodeURIComponent(factPattern)}`
-    )
-      .then((r) => r.json())
-      .then((d): CaseResult[] =>
-        (d.results || [])
-          .filter((r: { result_type: string }) => r.result_type === "case")
-          .map(
-            (r: {
-              uuid: string;
-              header: string;
-              excerpt: string;
-              url?: string;
-              caseDescription?: CaseDescription | null;
-            }) => ({
-              id: `tf-${r.uuid}`,
-              case_name: r.header,
-              snippet: r.excerpt,
-              source: "trustfoundry" as const,
-              url: r.url,
-              caseDescription: r.caseDescription,
-            })
-          )
-      )
-      .catch(() => [] as CaseResult[]);
-
-    Promise.all([...midpagePromises, tfPromise]).then((results) => {
-      const all = results.flat();
-      // Deduplicate by case name (rough match)
-      const seen = new Set<string>();
-      const deduped = all.filter((c) => {
-        const key = c.case_name.toLowerCase().replace(/[^a-z]/g, "").slice(0, 30);
-        if (seen.has(key)) return false;
-        seen.add(key);
-        return true;
-      });
-      setCases(deduped.slice(0, 10));
-      setCasesLoading(false);
-    });
-  }, [lenderName, geoGap]); // eslint-disable-line react-hooks/exhaustive-deps
-
+  const summary = getEnforcementSummary();
   const supportedCount = evidence.filter((e) => e.status === "supported").length;
 
   return (
@@ -401,198 +267,144 @@ export default function LegalAnalysis({
         </div>
       </div>
 
-      {/* Section 2: Causes of Action */}
+      {/* Section 2: Causes of Action with Enforcement Benchmark */}
       {causesOfAction.length > 0 && (
         <div className="bg-white rounded-xl border border-slate-200 p-6">
           <h3 className="text-lg font-semibold text-slate-900 mb-1">
             Available Causes of Action
           </h3>
           <p className="text-xs text-slate-500 mb-4">
-            Legal theories supported by the screening data
+            Legal theories supported by screening data, with enforcement precedent
           </p>
 
-          <div className="space-y-4">
+          <div className="space-y-6">
             {causesOfAction.map((coa) => (
-              <div
-                key={coa.name}
-                className={`rounded-lg border p-4 ${
-                  coa.evidenceSupport === "strong"
-                    ? "border-blue-200 bg-blue-50"
-                    : "border-slate-200 bg-slate-50"
-                }`}
-              >
-                <div className="flex items-center gap-2 mb-1">
-                  <h4 className="font-semibold text-slate-900">{coa.name}</h4>
-                  <span className="text-xs text-slate-500">({coa.statute})</span>
-                  <span
-                    className={`ml-auto text-xs font-medium px-2 py-0.5 rounded-full ${
-                      coa.evidenceSupport === "strong"
-                        ? "bg-blue-100 text-blue-700"
-                        : "bg-slate-200 text-slate-600"
-                    }`}
-                  >
-                    {coa.evidenceSupport === "strong" ? "Strong support" : "Partial support"}
-                  </span>
-                </div>
-                <p className="text-xs text-slate-600 mb-3">{coa.description}</p>
-                <div className="grid grid-cols-2 gap-1">
-                  {coa.elements.map((el) => (
+              <div key={coa.name}>
+                <div
+                  className={`rounded-lg border p-4 ${
+                    coa.evidenceSupport === "strong"
+                      ? "border-blue-200 bg-blue-50"
+                      : "border-slate-200 bg-slate-50"
+                  }`}
+                >
+                  <div className="flex items-center gap-2 mb-1">
+                    <h4 className="font-semibold text-slate-900">{coa.name}</h4>
+                    <span className="text-xs text-slate-500">({coa.statute})</span>
                     <span
-                      key={el.label}
-                      className={`text-xs flex items-center gap-1.5 ${
-                        el.met ? "text-slate-700" : "text-slate-400"
+                      className={`ml-auto text-xs font-medium px-2 py-0.5 rounded-full ${
+                        coa.evidenceSupport === "strong"
+                          ? "bg-blue-100 text-blue-700"
+                          : "bg-slate-200 text-slate-600"
                       }`}
                     >
-                      {el.met ? "\u2713" : "\u2717"} {el.label}
+                      {coa.evidenceSupport === "strong" ? "Strong support" : "Partial support"}
                     </span>
-                  ))}
+                  </div>
+                  <p className="text-xs text-slate-600 mb-3">{coa.description}</p>
+                  <div className="grid grid-cols-2 gap-1">
+                    {coa.elements.map((el) => (
+                      <span
+                        key={el.label}
+                        className={`text-xs flex items-center gap-1.5 ${
+                          el.met ? "text-slate-700" : "text-slate-400"
+                        }`}
+                      >
+                        {el.met ? "\u2713" : "\u2717"} {el.label}
+                      </span>
+                    ))}
+                  </div>
                 </div>
+
+                {/* Enforcement precedent for this cause of action */}
+                {coa.matchingCases.length > 0 && (
+                  <div className="mt-2 ml-4 border-l-2 border-slate-200 pl-4">
+                    <p className="text-xs font-semibold text-slate-600 mb-2">
+                      Enforcement precedent for {coa.name.toLowerCase()}:
+                    </p>
+                    <div className="space-y-1.5">
+                      {coa.matchingCases.map((c) => (
+                        <div key={c.id}>
+                          <button
+                            onClick={() =>
+                              setExpandedCase(expandedCase === c.id ? null : c.id)
+                            }
+                            className="w-full text-left flex items-center gap-2 text-xs hover:bg-slate-50 rounded px-1 py-0.5 -mx-1 transition-colors"
+                          >
+                            <span className="font-bold text-slate-800 whitespace-nowrap">
+                              {formatDollars(c.settlementAmount)}
+                            </span>
+                            <span className="text-slate-700">
+                              <em>{c.caseName}</em>{" "}
+                              <span className="text-slate-400">({c.year})</span>
+                            </span>
+                            <span className="ml-auto text-slate-400">
+                              {expandedCase === c.id ? "\u25B2" : "\u25BC"}
+                            </span>
+                          </button>
+                          {expandedCase === c.id && (
+                            <div className="text-xs text-slate-600 mt-1 mb-2 pl-1 space-y-1">
+                              <p>{c.description}</p>
+                              <p>
+                                <span className="font-semibold">Key metric:</span>{" "}
+                                {c.disparityMetric}
+                              </p>
+                              <p>
+                                <span className="font-semibold">Geography:</span>{" "}
+                                {c.geography} |{" "}
+                                <span className="font-semibold">Groups affected:</span>{" "}
+                                {c.racialGroupAffected.join(", ")}
+                              </p>
+                              {c.sourceUrl && (
+                                <a
+                                  href={c.sourceUrl}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-blue-600 hover:underline inline-block"
+                                >
+                                  View source
+                                </a>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             ))}
           </div>
         </div>
       )}
 
-      {/* Section 3: Relevant Precedent */}
+      {/* Section 3: Enforcement Landscape */}
       <div className="bg-white rounded-xl border border-slate-200 p-6">
         <h3 className="text-lg font-semibold text-slate-900 mb-1">
-          Relevant Precedent
+          Enforcement Landscape
         </h3>
         <p className="text-xs text-slate-500 mb-4">
-          Cases with similar fact patterns — powered by Midpage and TrustFoundry
+          Federal and state fair lending enforcement activity ({summary.yearRange.earliest}-{summary.yearRange.latest})
         </p>
-
-        {casesLoading && (
-          <div className="flex items-center gap-2 text-sm text-slate-400 py-4">
-            <div className="w-4 h-4 border-2 border-slate-300 border-t-slate-600 rounded-full animate-spin" />
-            Searching for cases with similar fact patterns...
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+          <div className="bg-slate-50 rounded-lg p-3">
+            <p className="text-2xl font-bold text-slate-900">{summary.totalCases}</p>
+            <p className="text-xs text-slate-500">enforcement actions</p>
           </div>
-        )}
-
-        {!casesLoading && cases.length === 0 && (
-          <p className="text-sm text-slate-500 py-2">
-            No matching precedent found for this fact pattern.
-          </p>
-        )}
-
-        {!casesLoading && cases.length > 0 && (
-          <div className="space-y-2">
-            {cases.map((c) => (
-              <div
-                key={c.id}
-                className="border border-slate-200 rounded-lg overflow-hidden"
-              >
-                <button
-                  onClick={() =>
-                    setExpandedCase(expandedCase === c.id ? null : c.id)
-                  }
-                  className="w-full text-left px-4 py-3 hover:bg-slate-50 transition-colors flex items-center justify-between"
-                >
-                  <div>
-                    <p className="text-sm font-medium text-slate-900">
-                      {c.case_name}
-                    </p>
-                    <p className="text-xs text-slate-500">
-                      {c.court && <>{c.court} | </>}
-                      {c.date_filed && <>{c.date_filed} | </>}
-                      {c.source === "midpage" ? "Midpage" : "TrustFoundry"}
-                    </p>
-                  </div>
-                  <span className="text-slate-400 text-sm ml-2">
-                    {expandedCase === c.id ? "\u25B2" : "\u25BC"}
-                  </span>
-                </button>
-                {expandedCase === c.id && (
-                  <div className="px-4 pb-4 border-t border-slate-100 space-y-2 mt-2">
-                    {/* Midpage enriched details */}
-                    {c.source === "midpage" && (
-                      <>
-                        {c.citations && c.citations.length > 0 && (
-                          <p className="text-xs text-slate-700">
-                            <span className="font-semibold">Citation:</span>{" "}
-                            {c.citations.map((ct) => ct.cited_as).join("; ")}
-                          </p>
-                        )}
-                        <div className="flex gap-3 text-xs">
-                          {c.judge_name && (
-                            <span className="text-slate-600">
-                              <span className="font-semibold">Judge:</span> {c.judge_name}
-                            </span>
-                          )}
-                          {c.citation_count != null && (
-                            <span className="text-slate-600">
-                              <span className="font-semibold">Cited by:</span> {c.citation_count.toLocaleString()} opinions
-                            </span>
-                          )}
-                          {c.overall_treatment && (
-                            <span className={`font-semibold ${
-                              c.overall_treatment === "Positive" ? "text-green-600" :
-                              c.overall_treatment === "Negative" ? "text-red-600" :
-                              "text-slate-600"
-                            }`}>
-                              Treatment: {c.overall_treatment}
-                            </span>
-                          )}
-                        </div>
-                        <p className="text-xs text-slate-600 leading-relaxed">
-                          {c.snippet}
-                        </p>
-                      </>
-                    )}
-
-                    {/* TrustFoundry enriched details */}
-                    {c.source === "trustfoundry" && c.caseDescription && (
-                      <div className="space-y-2">
-                        {c.caseDescription.primary_holding && (
-                          <div>
-                            <p className="text-xs font-semibold text-slate-700">Holding</p>
-                            <p className="text-xs text-slate-600 leading-relaxed">
-                              {c.caseDescription.primary_holding}
-                            </p>
-                          </div>
-                        )}
-                        {c.caseDescription.key_facts_that_mattered && (
-                          <div>
-                            <p className="text-xs font-semibold text-slate-700">Key Facts</p>
-                            <p className="text-xs text-slate-600 leading-relaxed">
-                              {c.caseDescription.key_facts_that_mattered}
-                            </p>
-                          </div>
-                        )}
-                        {c.caseDescription.legal_test_established && (
-                          <div>
-                            <p className="text-xs font-semibold text-slate-700">Legal Test</p>
-                            <p className="text-xs text-slate-600 leading-relaxed">
-                              {c.caseDescription.legal_test_established}
-                            </p>
-                          </div>
-                        )}
-                      </div>
-                    )}
-
-                    {/* Fallback: raw snippet if no enrichment */}
-                    {c.source === "trustfoundry" && !c.caseDescription && (
-                      <p className="text-xs text-slate-600 leading-relaxed">
-                        {c.snippet}
-                      </p>
-                    )}
-
-                    {c.url && (
-                      <a
-                        href={c.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-xs text-blue-600 hover:underline inline-block"
-                      >
-                        View full opinion
-                      </a>
-                    )}
-                  </div>
-                )}
-              </div>
-            ))}
+          <div className="bg-slate-50 rounded-lg p-3">
+            <p className="text-2xl font-bold text-slate-900">
+              {formatDollars(summary.totalSettlementDollars)}
+            </p>
+            <p className="text-xs text-slate-500">total settlements</p>
           </div>
-        )}
+          <div className="bg-slate-50 rounded-lg p-3">
+            <p className="text-2xl font-bold text-slate-900">{summary.byTheory.redlining}</p>
+            <p className="text-xs text-slate-500">redlining cases</p>
+          </div>
+          <div className="bg-slate-50 rounded-lg p-3">
+            <p className="text-2xl font-bold text-slate-900">{summary.byType.doj}</p>
+            <p className="text-xs text-slate-500">DOJ-led cases</p>
+          </div>
+        </div>
       </div>
     </div>
   );
