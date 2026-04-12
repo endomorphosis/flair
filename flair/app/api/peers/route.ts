@@ -1,20 +1,21 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getStateAggregate, getStateEthnicityAggregate } from "@/lib/hmda";
+import { getAggregate, getEthnicityAggregate } from "@/lib/hmda";
 import { computeDenialRates, computeDisparityRatios, mergeRaceAndEthnicity } from "@/lib/computations";
 import { DEFAULT_YEAR } from "@/lib/constants";
 
 export async function GET(req: NextRequest) {
-  const state = req.nextUrl.searchParams.get("state");
+  const state = req.nextUrl.searchParams.get("state") || undefined;
+  const msa = req.nextUrl.searchParams.get("msa") || undefined;
   const year = parseInt(req.nextUrl.searchParams.get("year") || String(DEFAULT_YEAR));
 
-  if (!state) {
-    return NextResponse.json({ error: "state is required" }, { status: 400 });
+  if (!state && !msa) {
+    return NextResponse.json({ error: "state or msa is required" }, { status: 400 });
   }
 
   try {
     const [raceData, ethnicityData] = await Promise.all([
-      getStateAggregate(state, year),
-      getStateEthnicityAggregate(state, year),
+      getAggregate(year, state, msa),
+      getEthnicityAggregate(year, state, msa),
     ]);
 
     const raceDenials = computeDenialRates(raceData);
@@ -27,6 +28,7 @@ export async function GET(req: NextRequest) {
       disparityRatios: ratios,
       year,
       state,
+      msa,
     });
   } catch (e) {
     return NextResponse.json({ error: String(e) }, { status: 500 });

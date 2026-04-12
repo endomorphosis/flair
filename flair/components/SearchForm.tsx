@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { US_STATES, AVAILABLE_YEARS, DEFAULT_YEAR } from "@/lib/constants";
+import { getMSAsForState } from "@/lib/msas";
 
 interface Lender {
   lei: string;
@@ -14,10 +15,18 @@ export default function SearchForm() {
   const router = useRouter();
   const [query, setQuery] = useState("");
   const [state, setState] = useState("CA");
+  const [msa, setMsa] = useState("");
   const [year, setYear] = useState(DEFAULT_YEAR);
   const [lenders, setLenders] = useState<Lender[]>([]);
   const [loading, setLoading] = useState(false);
   const [searched, setSearched] = useState(false);
+
+  const msaOptions = useMemo(() => getMSAsForState(state), [state]);
+
+  function handleStateChange(newState: string) {
+    setState(newState);
+    setMsa(""); // reset MSA when state changes
+  }
 
   async function handleSearch(e: React.FormEvent) {
     e.preventDefault();
@@ -46,6 +55,11 @@ export default function SearchForm() {
       state,
       year: String(year),
     });
+    if (msa) {
+      params.set("msa", msa);
+      const msaObj = msaOptions.find((m) => m.code === msa);
+      if (msaObj) params.set("msaName", msaObj.name);
+    }
     router.push(`/results?${params.toString()}`);
   }
 
@@ -74,7 +88,7 @@ export default function SearchForm() {
             <select
               id="state"
               value={state}
-              onChange={(e) => setState(e.target.value)}
+              onChange={(e) => handleStateChange(e.target.value)}
               className="w-full px-4 py-3 border border-slate-300 rounded-lg text-base focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none bg-white"
             >
               {Object.entries(US_STATES)
@@ -104,6 +118,28 @@ export default function SearchForm() {
             </select>
           </div>
         </div>
+
+        {msaOptions.length > 0 && (
+          <div>
+            <label htmlFor="msa" className="block text-sm font-medium text-slate-700 mb-1">
+              Metro Area{" "}
+              <span className="font-normal text-slate-400">(optional — narrows peer comparison to MSA level)</span>
+            </label>
+            <select
+              id="msa"
+              value={msa}
+              onChange={(e) => setMsa(e.target.value)}
+              className="w-full px-4 py-3 border border-slate-300 rounded-lg text-base focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none bg-white"
+            >
+              <option value="">Statewide (all lenders in {US_STATES[state]})</option>
+              {msaOptions.map((m) => (
+                <option key={m.code} value={m.code}>
+                  {m.name}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
 
         <button
           type="submit"

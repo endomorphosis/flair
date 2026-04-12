@@ -26,7 +26,12 @@ function ResultsContent() {
   const lei = searchParams.get("lei") || "";
   const name = searchParams.get("name") || "";
   const state = searchParams.get("state") || "";
+  const msa = searchParams.get("msa") || "";
+  const msaName = searchParams.get("msaName") || "";
   const year = parseInt(searchParams.get("year") || "2023");
+
+  const geoLabel = msaName || US_STATES[state] || state;
+  const geoParam = msa ? `msa=${msa}` : `state=${state}`;
 
   const [disparity, setDisparity] = useState<DisparityData | null>(null);
   const [peers, setPeers] = useState<DisparityData | null>(null);
@@ -35,17 +40,17 @@ function ResultsContent() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!lei || !state) return;
+    if (!lei || (!state && !msa)) return;
 
     setLoading(true);
     setError(null);
 
     Promise.all([
-      fetch(`/api/disparity?lei=${lei}&state=${state}&year=${year}`).then((r) =>
+      fetch(`/api/disparity?lei=${lei}&${geoParam}&year=${year}`).then((r) =>
         r.json()
       ),
-      fetch(`/api/peers?state=${state}&year=${year}`).then((r) => r.json()),
-      fetch(`/api/trends?lei=${lei}&state=${state}`).then((r) => r.json()),
+      fetch(`/api/peers?${geoParam}&year=${year}`).then((r) => r.json()),
+      fetch(`/api/trends?lei=${lei}&${geoParam}`).then((r) => r.json()),
     ])
       .then(([disparityData, peersData, trendsData]) => {
         setDisparity(disparityData);
@@ -54,12 +59,12 @@ function ResultsContent() {
       })
       .catch((e) => setError(String(e)))
       .finally(() => setLoading(false));
-  }, [lei, state, year]);
+  }, [lei, state, msa, geoParam, year]);
 
-  if (!lei || !state) {
+  if (!lei || (!state && !msa)) {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <p className="text-slate-500">Missing lender or state parameter.</p>
+        <p className="text-slate-500">Missing lender or geography parameter.</p>
       </div>
     );
   }
@@ -77,7 +82,7 @@ function ResultsContent() {
           </a>
           <h1 className="text-2xl font-bold mt-2">{name}</h1>
           <p className="text-slate-400 text-sm">
-            {US_STATES[state] || state} | {year} HMDA Data
+            {geoLabel} | {year} HMDA Data
             {disparity && (
               <> | {disparity.denialRates.reduce((s, r) => s + r.applications, 0).toLocaleString()} total applications</>
             )}
@@ -107,7 +112,7 @@ function ResultsContent() {
             <DisparityProfile
               ratios={disparity.disparityRatios}
               lenderName={name}
-              state={US_STATES[state] || state}
+              state={geoLabel}
               year={year}
             />
 
@@ -123,7 +128,7 @@ function ResultsContent() {
                 lenderRatios={disparity.disparityRatios}
                 marketRatios={peers.disparityRatios}
                 lenderName={name}
-                state={US_STATES[state] || state}
+                state={geoLabel}
               />
             )}
 
