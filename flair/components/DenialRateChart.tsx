@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import {
   BarChart,
   Bar,
@@ -18,20 +19,73 @@ interface Props {
   title?: string;
 }
 
+const LOW_SAMPLE_THRESHOLD = 30;
+
 export default function DenialRateChart({ data, title }: Props) {
-  const chartData = data
-    .filter((d) => d.applications >= 30)
-    .map((d) => ({
-      ...d,
-      denialRatePct: +(d.denialRate * 100).toFixed(1),
-      fill: RACE_COLORS[d.group] || "#94a3b8",
-    }));
+  const allEntries = data.map((d) => ({
+    ...d,
+    denialRatePct: +(d.denialRate * 100).toFixed(1),
+    fill: RACE_COLORS[d.group] || "#94a3b8",
+    lowSample: d.applications < LOW_SAMPLE_THRESHOLD,
+  }));
+
+  // Default: hide low-sample groups
+  const [hidden, setHidden] = useState<Set<string>>(
+    () => new Set(allEntries.filter((d) => d.lowSample).map((d) => d.group))
+  );
+
+  const chartData = allEntries.filter((d) => !hidden.has(d.group));
+
+  function toggle(group: string) {
+    setHidden((prev) => {
+      const next = new Set(prev);
+      if (next.has(group)) {
+        next.delete(group);
+      } else {
+        next.add(group);
+      }
+      return next;
+    });
+  }
 
   return (
     <div className="bg-white rounded-xl border border-slate-200 p-6">
       {title && (
         <h3 className="text-lg font-semibold text-slate-900 mb-4">{title}</h3>
       )}
+
+      {/* Checkbox filters */}
+      <div className="mb-4 flex flex-wrap gap-x-5 gap-y-2">
+        {allEntries.map((d) => (
+          <label
+            key={d.group}
+            className="flex items-center gap-2 cursor-pointer text-sm select-none"
+          >
+            <input
+              type="checkbox"
+              checked={!hidden.has(d.group)}
+              onChange={() => toggle(d.group)}
+              className="accent-slate-700 w-3.5 h-3.5"
+            />
+            <span
+              className="inline-block w-3 h-3 rounded-sm"
+              style={{ backgroundColor: d.fill }}
+            />
+            <span className={hidden.has(d.group) ? "text-slate-400" : "text-slate-700"}>
+              {d.label}
+            </span>
+            <span className="text-slate-400 text-xs">
+              ({d.applications.toLocaleString()})
+            </span>
+            {d.lowSample && (
+              <span className="text-[10px] text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded">
+                n&lt;{LOW_SAMPLE_THRESHOLD}
+              </span>
+            )}
+          </label>
+        ))}
+      </div>
+
       <ResponsiveContainer width="100%" height={320}>
         <BarChart
           data={chartData}
@@ -63,17 +117,6 @@ export default function DenialRateChart({ data, title }: Props) {
           </Bar>
         </BarChart>
       </ResponsiveContainer>
-      <div className="mt-3 flex flex-wrap gap-4 justify-center text-xs text-slate-500">
-        {chartData.map((d) => (
-          <span key={d.group} className="flex items-center gap-1.5">
-            <span
-              className="inline-block w-3 h-3 rounded-sm"
-              style={{ backgroundColor: d.fill }}
-            />
-            {d.label}: {d.applications.toLocaleString()} applications
-          </span>
-        ))}
-      </div>
     </div>
   );
 }
