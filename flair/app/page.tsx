@@ -9,9 +9,7 @@ export default function Home() {
             Fair Lending AI Report
           </h1>
           <p className="text-slate-600 max-w-lg mx-auto">
-            Look up any mortgage lender. See racial disparities in loan denials
-            backed by federal HMDA data. Compare against peers. Connect to the
-            legal framework.
+            Turn federal mortgage data into fair lending evidence — in seconds.
           </p>
         </div>
 
