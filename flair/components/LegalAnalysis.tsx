@@ -266,8 +266,8 @@ export default function LegalAnalysis({
   return (
     <div className="space-y-6">
       {/* Section 1: Evidence Assessment */}
-      <div className="bg-white rounded-xl border border-slate-200 p-6">
-        <h3 className="text-lg font-semibold text-slate-900 mb-1">
+      <div className="py-2">
+        <h3 className="text-[11px] font-medium tracking-wide text-neutral-500 uppercase mb-1">
           Evidence Assessment
         </h3>
         <p className="text-xs text-slate-500 mb-4">
@@ -312,8 +312,8 @@ export default function LegalAnalysis({
 
       {/* Section 2: Causes of Action with Enforcement Benchmark */}
       {causesOfAction.length > 0 && (
-        <div className="bg-white rounded-xl border border-slate-200 p-6">
-          <h3 className="text-lg font-semibold text-slate-900 mb-1">
+        <div className="py-2">
+          <h3 className="text-[11px] font-medium tracking-wide text-neutral-500 uppercase mb-1">
             Available Causes of Action
           </h3>
           <p className="text-xs text-slate-500 mb-4">
@@ -448,8 +448,8 @@ export default function LegalAnalysis({
       )}
 
       {/* Section 3: Enforcement Landscape */}
-      <div className="bg-white rounded-xl border border-slate-200 p-6">
-        <h3 className="text-lg font-semibold text-slate-900 mb-1">
+      <div className="py-2">
+        <h3 className="text-[11px] font-medium tracking-wide text-neutral-500 uppercase mb-1">
           Enforcement Landscape
         </h3>
         <p className="text-xs text-slate-500 mb-4">

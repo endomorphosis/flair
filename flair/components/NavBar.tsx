@@ -13,12 +13,12 @@ export default function NavBar() {
   const pathname = usePathname();
 
   return (
-    <nav className="bg-slate-900 text-white print:hidden">
-      <div className="max-w-5xl mx-auto px-6 flex items-center justify-between h-14">
-        <Link href="/" className="text-xl font-bold tracking-tight hover:text-slate-200 transition-colors">
+    <nav className="bg-[#111] text-white print:hidden">
+      <div className="max-w-5xl mx-auto px-6 flex items-center justify-between h-12">
+        <Link href="/" className="text-base font-semibold tracking-widest uppercase hover:opacity-70 transition-opacity">
           FLAIR
         </Link>
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-6">
           {NAV_ITEMS.map((item) => {
             const isActive =
               item.href === "/"
@@ -28,10 +28,10 @@ export default function NavBar() {
               <Link
                 key={item.href}
                 href={item.href}
-                className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
+                className={`text-[13px] tracking-wide transition-opacity ${
                   isActive
-                    ? "bg-white/15 text-white"
-                    : "text-slate-400 hover:text-white hover:bg-white/10"
+                    ? "text-white font-medium"
+                    : "text-neutral-500 hover:text-white"
                 }`}
               >
                 {item.label}

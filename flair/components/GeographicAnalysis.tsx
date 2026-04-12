@@ -61,8 +61,8 @@ export default function GeographicAnalysis({ lei, state, year, lenderName, geoLa
 
   if (loading) {
     return (
-      <div className="bg-white rounded-xl border border-slate-200 p-6">
-        <h3 className="text-lg font-semibold text-slate-900 mb-2">
+      <div className="py-2">
+        <h3 className="text-[11px] font-medium tracking-wide text-neutral-500 uppercase mb-2">
           Geographic Lending Pattern Analysis
         </h3>
         <div className="flex items-center gap-2 text-sm text-slate-400 py-8">
@@ -75,8 +75,8 @@ export default function GeographicAnalysis({ lei, state, year, lenderName, geoLa
 
   if (error || !data) {
     return (
-      <div className="bg-white rounded-xl border border-slate-200 p-6">
-        <h3 className="text-lg font-semibold text-slate-900 mb-2">
+      <div className="py-2">
+        <h3 className="text-[11px] font-medium tracking-wide text-neutral-500 uppercase mb-2">
           Geographic Lending Pattern Analysis
         </h3>
         <p className="text-sm text-amber-600">
@@ -103,8 +103,8 @@ export default function GeographicAnalysis({ lei, state, year, lenderName, geoLa
   const isOverserving = data.gap > 5;
 
   return (
-    <div className="bg-white rounded-xl border border-slate-200 p-6">
-      <h3 className="text-lg font-semibold text-slate-900 mb-1">
+    <div className="py-2">
+      <h3 className="text-[11px] font-medium tracking-wide text-neutral-500 uppercase mb-1">
         Geographic Lending Pattern Analysis
       </h3>
       <p className="text-xs text-slate-500 mb-4">

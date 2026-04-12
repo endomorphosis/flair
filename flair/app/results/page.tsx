@@ -23,9 +23,9 @@ interface TrendYear {
 }
 
 const TABS = [
-  { id: "disparity", label: "Disparity Profile" },
+  { id: "disparity", label: "Disparity" },
   { id: "peers", label: "Peers & Trends" },
-  { id: "geographic", label: "Geographic" },
+  { id: "geographic", label: "Geography" },
   { id: "legal", label: "Legal" },
 ] as const;
 
@@ -74,47 +74,49 @@ function ResultsContent() {
 
   if (!lei || (!state && !msa)) {
     return (
-      <div className="min-h-[calc(100vh-3.5rem)] bg-slate-50 flex items-center justify-center">
-        <p className="text-slate-500">Missing lender or geography parameter.</p>
+      <div className="min-h-[calc(100vh-3rem)] flex items-center justify-center">
+        <p className="text-neutral-400">Missing lender or geography parameter.</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-[calc(100vh-3.5rem)] bg-slate-50">
+    <div className="min-h-[calc(100vh-3rem)]">
       {/* Results header */}
-      <div className="bg-slate-800 text-white">
+      <div className="bg-[#111] text-white">
         <div className="max-w-5xl mx-auto px-6 py-5">
-          <div className="flex items-center justify-between mb-1">
-            <h1 className="text-xl font-bold">{name}</h1>
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-lg font-semibold tracking-tight">{name}</h1>
+              <p className="text-neutral-500 text-[13px] mt-0.5">
+                {geoLabel} &middot; {year}
+                {disparity && (
+                  <> &middot; {disparity.denialRates.reduce((s, r) => s + r.applications, 0).toLocaleString()} applications</>
+                )}
+              </p>
+            </div>
             <button
               onClick={() => window.print()}
-              className="text-sm px-4 py-1.5 bg-white/10 hover:bg-white/20 rounded-lg transition-colors print:hidden"
+              className="text-[12px] tracking-wide text-neutral-500 hover:text-white transition-colors print:hidden"
             >
               Export PDF
             </button>
           </div>
-          <p className="text-slate-400 text-sm">
-            {geoLabel} | {year} HMDA Data
-            {disparity && (
-              <> | {disparity.denialRates.reduce((s, r) => s + r.applications, 0).toLocaleString()} total applications</>
-            )}
-          </p>
         </div>
       </div>
 
       {/* Tabs */}
-      <div className="bg-white border-b border-slate-200 print:hidden">
+      <div className="border-b border-neutral-200 bg-white print:hidden sticky top-0 z-10">
         <div className="max-w-5xl mx-auto px-6">
-          <div className="flex gap-1">
+          <div className="flex gap-8">
             {TABS.map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
+                className={`py-3 text-[13px] font-medium border-b-2 -mb-px transition-colors ${
                   activeTab === tab.id
-                    ? "border-slate-900 text-slate-900"
-                    : "border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300"
+                    ? "border-[#111] text-[#111]"
+                    : "border-transparent text-neutral-400 hover:text-neutral-700"
                 }`}
               >
                 {tab.label}
@@ -124,26 +126,26 @@ function ResultsContent() {
         </div>
       </div>
 
-      <main className="max-w-5xl mx-auto px-6 py-8">
+      <main className="max-w-5xl mx-auto px-6 py-10">
         {loading && (
-          <div className="text-center py-20">
-            <div className="inline-block w-8 h-8 border-4 border-slate-300 border-t-slate-900 rounded-full animate-spin" />
-            <p className="mt-4 text-slate-500">
-              Fetching HMDA data and computing disparities...
+          <div className="text-center py-24">
+            <div className="inline-block w-6 h-6 border-2 border-neutral-300 border-t-[#111] rounded-full animate-spin" />
+            <p className="mt-4 text-sm text-neutral-400">
+              Loading HMDA data...
             </p>
           </div>
         )}
 
         {error && (
-          <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-red-700">
+          <div className="text-sm text-red-600 py-4">
             Error: {error}
           </div>
         )}
 
         {!loading && !error && disparity && (
           <>
-            {/* Tab: Disparity Profile */}
-            <div className={activeTab === "disparity" ? "space-y-8" : "hidden print:block print:space-y-8"}>
+            {/* Tab: Disparity */}
+            <div className={activeTab === "disparity" ? "space-y-10" : "hidden print:block print:space-y-10"}>
               <DisparityProfile
                 ratios={disparity.disparityRatios}
                 lenderName={name}
@@ -152,12 +154,12 @@ function ResultsContent() {
               />
               <DenialRateChart
                 data={disparity.denialRates}
-                title={`Denial Rates by Race — ${name}, ${geoLabel} (${year})`}
+                title={`Denial Rates by Race — ${year}`}
               />
             </div>
 
             {/* Tab: Peers & Trends */}
-            <div className={activeTab === "peers" ? "space-y-8" : "hidden print:block print:space-y-8"}>
+            <div className={activeTab === "peers" ? "space-y-10" : "hidden print:block print:space-y-10"}>
               {peers && peers.disparityRatios.length > 0 ? (
                 <PeerComparison
                   lenderRatios={disparity.disparityRatios}
@@ -166,9 +168,9 @@ function ResultsContent() {
                   state={geoLabel}
                 />
               ) : (
-                <div className="bg-slate-50 rounded-xl border border-slate-200 p-6 text-center text-slate-500">
+                <p className="text-sm text-neutral-400 py-8">
                   Insufficient peer data for comparison.
-                </div>
+                </p>
               )}
               {trends && trends.length > 0 && (
                 <TrendChart trends={trends} lenderName={name} />
@@ -186,10 +188,9 @@ function ResultsContent() {
                   geoLabel={geoLabel}
                 />
               ) : (
-                <div className="bg-slate-50 rounded-xl border border-slate-200 p-6 text-center text-slate-500">
-                  Geographic analysis requires a state selection (not available
-                  for MSA-only queries).
-                </div>
+                <p className="text-sm text-neutral-400 py-8">
+                  Geographic analysis requires a state selection.
+                </p>
               )}
             </div>
 
@@ -210,10 +211,10 @@ function ResultsContent() {
         )}
       </main>
 
-      {/* Print-only generation line */}
-      <div className="hidden print:block text-center text-xs text-slate-400 py-4 border-t border-slate-200 mt-8">
+      {/* Print-only */}
+      <div className="hidden print:block text-center text-[11px] text-neutral-400 py-4 border-t border-neutral-200 mt-8">
         Generated by FLAIR (Fair Lending AI Radar) |
-        Data source: CFPB HMDA Data Browser | flair-steel.vercel.app
+        Data source: CFPB HMDA Data Browser | try-flair.vercel.app
       </div>
     </div>
   );
@@ -223,8 +224,8 @@ export default function ResultsPage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-[calc(100vh-3.5rem)] bg-slate-50 flex items-center justify-center">
-          <p className="text-slate-500">Loading...</p>
+        <div className="min-h-[calc(100vh-3rem)] flex items-center justify-center">
+          <p className="text-neutral-400 text-sm">Loading...</p>
         </div>
       }
     >

@@ -58,11 +58,11 @@ export default function TrendChart({ trends, lenderName }: Props) {
     }, [] as { group: string; label: string }[]);
 
   return (
-    <div className="bg-white rounded-xl border border-slate-200 p-6">
-      <h3 className="text-lg font-semibold text-slate-900 mb-1">
-        Disparity Trend Over Time
-      </h3>
-      <p className="text-sm text-slate-500 mb-4">
+    <div>
+      <p className="text-[11px] font-medium tracking-wide text-neutral-500 uppercase mb-1">
+        Disparity Trend
+      </p>
+      <p className="text-[13px] text-neutral-400 mb-6">
         Denial rate ratio vs. White applicants at {lenderName}
       </p>
       <ResponsiveContainer width="100%" height={300}>

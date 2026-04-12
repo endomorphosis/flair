@@ -25,7 +25,7 @@ export default function SearchForm() {
 
   function handleStateChange(newState: string) {
     setState(newState);
-    setMsa(""); // reset MSA when state changes
+    setMsa("");
   }
 
   async function handleSearch(e: React.FormEvent) {
@@ -63,11 +63,16 @@ export default function SearchForm() {
     router.push(`/results?${params.toString()}`);
   }
 
+  const inputClass =
+    "w-full px-0 py-3 border-0 border-b border-neutral-300 bg-transparent text-base focus:ring-0 focus:border-[#111] outline-none transition-colors placeholder:text-neutral-400";
+  const selectClass =
+    "w-full px-0 py-3 border-0 border-b border-neutral-300 bg-transparent text-base focus:ring-0 focus:border-[#111] outline-none transition-colors appearance-none cursor-pointer";
+
   return (
-    <div className="w-full max-w-2xl mx-auto">
-      <form onSubmit={handleSearch} className="space-y-4">
+    <div className="w-full">
+      <form onSubmit={handleSearch} className="space-y-6">
         <div>
-          <label htmlFor="lender" className="block text-sm font-medium text-slate-700 mb-1">
+          <label htmlFor="lender" className="block text-[11px] font-medium tracking-wide text-neutral-500 uppercase mb-1">
             Lender Name
           </label>
           <input
@@ -75,21 +80,21 @@ export default function SearchForm() {
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder='e.g. "Wells Fargo", "Bank of America"'
-            className="w-full px-4 py-3 border border-slate-300 rounded-lg text-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+            placeholder="Wells Fargo, Bank of America..."
+            className={inputClass}
           />
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-2 gap-8">
           <div>
-            <label htmlFor="state" className="block text-sm font-medium text-slate-700 mb-1">
+            <label htmlFor="state" className="block text-[11px] font-medium tracking-wide text-neutral-500 uppercase mb-1">
               State
             </label>
             <select
               id="state"
               value={state}
               onChange={(e) => handleStateChange(e.target.value)}
-              className="w-full px-4 py-3 border border-slate-300 rounded-lg text-base focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none bg-white"
+              className={selectClass}
             >
               {Object.entries(US_STATES)
                 .sort(([, a], [, b]) => a.localeCompare(b))
@@ -101,14 +106,14 @@ export default function SearchForm() {
             </select>
           </div>
           <div>
-            <label htmlFor="year" className="block text-sm font-medium text-slate-700 mb-1">
+            <label htmlFor="year" className="block text-[11px] font-medium tracking-wide text-neutral-500 uppercase mb-1">
               Year
             </label>
             <select
               id="year"
               value={year}
               onChange={(e) => setYear(Number(e.target.value))}
-              className="w-full px-4 py-3 border border-slate-300 rounded-lg text-base focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none bg-white"
+              className={selectClass}
             >
               {AVAILABLE_YEARS.slice().reverse().map((y) => (
                 <option key={y} value={y}>
@@ -121,17 +126,16 @@ export default function SearchForm() {
 
         {msaOptions.length > 0 && (
           <div>
-            <label htmlFor="msa" className="block text-sm font-medium text-slate-700 mb-1">
-              Metro Area{" "}
-              <span className="font-normal text-slate-400">(optional — narrows peer comparison to MSA level)</span>
+            <label htmlFor="msa" className="block text-[11px] font-medium tracking-wide text-neutral-500 uppercase mb-1">
+              Metro Area <span className="normal-case tracking-normal font-normal text-neutral-400">(optional)</span>
             </label>
             <select
               id="msa"
               value={msa}
               onChange={(e) => setMsa(e.target.value)}
-              className="w-full px-4 py-3 border border-slate-300 rounded-lg text-base focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none bg-white"
+              className={selectClass}
             >
-              <option value="">Statewide (all lenders in {US_STATES[state]})</option>
+              <option value="">Statewide</option>
               {msaOptions.map((m) => (
                 <option key={m.code} value={m.code}>
                   {m.name}
@@ -144,32 +148,32 @@ export default function SearchForm() {
         <button
           type="submit"
           disabled={loading || query.length < 2}
-          className="w-full py-3 px-6 bg-slate-900 text-white rounded-lg text-lg font-medium hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          className="w-full py-3 bg-[#111] text-white text-sm font-medium tracking-wide uppercase hover:bg-[#333] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
         >
-          {loading ? "Searching..." : "Search Lender"}
+          {loading ? "Searching..." : "Search"}
         </button>
       </form>
 
       {searched && lenders.length === 0 && (
-        <p className="mt-6 text-center text-slate-500">
+        <p className="mt-8 text-center text-sm text-neutral-400">
           No lenders found matching &ldquo;{query}&rdquo; for {year}.
         </p>
       )}
 
       {lenders.length > 0 && (
-        <div className="mt-6">
-          <h3 className="text-sm font-medium text-slate-500 mb-2">
-            Select a lender ({lenders.length} result{lenders.length !== 1 ? "s" : ""})
-          </h3>
-          <div className="space-y-2">
+        <div className="mt-10">
+          <p className="text-[11px] font-medium tracking-wide text-neutral-500 uppercase mb-3">
+            {lenders.length} result{lenders.length !== 1 ? "s" : ""}
+          </p>
+          <div className="divide-y divide-neutral-200">
             {lenders.map((l) => (
               <button
                 key={l.lei}
                 onClick={() => selectLender(l)}
-                className="w-full text-left px-4 py-3 border border-slate-200 rounded-lg hover:bg-slate-50 hover:border-slate-400 transition-colors"
+                className="w-full text-left py-3 hover:bg-neutral-100 transition-colors -mx-2 px-2"
               >
-                <span className="font-medium text-slate-900">{l.name}</span>
-                <span className="ml-2 text-xs text-slate-400 font-mono">
+                <span className="text-sm font-medium text-[#111]">{l.name}</span>
+                <span className="ml-2 text-[11px] text-neutral-400 font-mono">
                   {l.lei}
                 </span>
               </button>

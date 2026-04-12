@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "FLAIR — Fair Lending AI Radar",
   description:
-    "Look up any mortgage lender. See racial disparities in loan denials backed by federal HMDA data. Identify outliers. Connect to the legal framework.",
+    "Turn federal mortgage data into fair lending evidence — in seconds.",
 };
 
 export default function RootLayout({
@@ -26,11 +26,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
-      <body className="font-sans antialiased min-h-screen flex flex-col">
+      <body className="font-sans antialiased min-h-screen flex flex-col text-[#111]">
         <NavBar />
         <div className="flex-1">{children}</div>
-        <footer className="bg-white border-t border-slate-200 py-6 text-center text-xs text-slate-400 print:hidden">
-          Data source: CFPB HMDA Data Browser | Built for LLM x Law Hackathon #6 at Stanford CodeX
+        <footer className="py-8 text-center text-[11px] tracking-wide text-neutral-400 print:hidden">
+          CFPB HMDA Data Browser &middot; U.S. Census ACS &middot; Stanford CodeX LLM x Law Hackathon
         </footer>
       </body>
     </html>

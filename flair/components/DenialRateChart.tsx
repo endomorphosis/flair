@@ -49,9 +49,9 @@ export default function DenialRateChart({ data, title }: Props) {
   }
 
   return (
-    <div className="bg-white rounded-xl border border-slate-200 p-6">
+    <div>
       {title && (
-        <h3 className="text-lg font-semibold text-slate-900 mb-4">{title}</h3>
+        <p className="text-[11px] font-medium tracking-wide text-neutral-500 uppercase mb-4">{title}</p>
       )}
 
       {/* Checkbox filters */}
@@ -59,26 +59,26 @@ export default function DenialRateChart({ data, title }: Props) {
         {allEntries.map((d) => (
           <label
             key={d.group}
-            className="flex items-center gap-2 cursor-pointer text-sm select-none"
+            className="flex items-center gap-2 cursor-pointer text-[13px] select-none"
           >
             <input
               type="checkbox"
               checked={!hidden.has(d.group)}
               onChange={() => toggle(d.group)}
-              className="accent-slate-700 w-3.5 h-3.5"
+              className="accent-[#111] w-3.5 h-3.5"
             />
             <span
-              className="inline-block w-3 h-3 rounded-sm"
+              className="inline-block w-2.5 h-2.5 rounded-full"
               style={{ backgroundColor: d.fill }}
             />
-            <span className={hidden.has(d.group) ? "text-slate-400" : "text-slate-700"}>
+            <span className={hidden.has(d.group) ? "text-neutral-400" : "text-neutral-700"}>
               {d.label}
             </span>
-            <span className="text-slate-400 text-xs">
+            <span className="text-neutral-400 text-[11px]">
               ({d.applications.toLocaleString()})
             </span>
             {d.lowSample && (
-              <span className="text-[10px] text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded">
+              <span className="text-[10px] text-neutral-500">
                 n&lt;{LOW_SAMPLE_THRESHOLD}
               </span>
             )}
@@ -91,26 +91,29 @@ export default function DenialRateChart({ data, title }: Props) {
           data={chartData}
           margin={{ top: 5, right: 20, left: 10, bottom: 5 }}
         >
-          <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+          <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
           <XAxis
             dataKey="label"
-            tick={{ fontSize: 13, fill: "#475569" }}
-            axisLine={{ stroke: "#cbd5e1" }}
+            tick={{ fontSize: 12, fill: "#737373" }}
+            axisLine={{ stroke: "#e5e5e5" }}
+            tickLine={false}
           />
           <YAxis
-            tick={{ fontSize: 13, fill: "#475569" }}
-            axisLine={{ stroke: "#cbd5e1" }}
+            tick={{ fontSize: 12, fill: "#737373" }}
+            axisLine={false}
+            tickLine={false}
             tickFormatter={(v) => `${v}%`}
           />
           <Tooltip
             formatter={(value) => [`${value}%`, "Denial Rate"]}
             contentStyle={{
-              borderRadius: "8px",
-              border: "1px solid #e2e8f0",
-              fontSize: "14px",
+              borderRadius: "2px",
+              border: "1px solid #e5e5e5",
+              fontSize: "13px",
+              boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
             }}
           />
-          <Bar dataKey="denialRatePct" radius={[6, 6, 0, 0]} maxBarSize={60}>
+          <Bar dataKey="denialRatePct" radius={[2, 2, 0, 0]} maxBarSize={48}>
             {chartData.map((entry, i) => (
               <Cell key={i} fill={entry.fill} />
             ))}
