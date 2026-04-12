@@ -7,6 +7,7 @@ import DenialRateChart from "@/components/DenialRateChart";
 import DisparityProfile from "@/components/DisparityProfile";
 import PeerComparison from "@/components/PeerComparison";
 import TrendChart from "@/components/TrendChart";
+import LegalSidebar from "@/components/LegalSidebar";
 import { US_STATES } from "@/lib/constants";
 
 interface DisparityData {
@@ -131,37 +132,8 @@ function ResultsContent() {
               <TrendChart trends={trends} lenderName={name} />
             )}
 
-            {/* Legal context placeholder */}
-            <div className="bg-slate-100 rounded-xl border border-slate-200 p-6">
-              <h3 className="text-lg font-semibold text-slate-900 mb-2">
-                Legal Framework
-              </h3>
-              <div className="text-sm text-slate-600 space-y-2">
-                <p>
-                  <strong>ECOA (15 U.S.C. &sect; 1691):</strong> Prohibits
-                  discrimination in credit transactions on the basis of race,
-                  color, religion, national origin, sex, marital status, or age.
-                </p>
-                <p>
-                  <strong>Fair Housing Act (42 U.S.C. &sect; 3605):</strong>{" "}
-                  Prohibits discrimination in residential real estate-related
-                  transactions, including mortgage lending.
-                </p>
-                <p>
-                  <strong>Disparate Impact Standard:</strong> Under{" "}
-                  <em>
-                    Texas Dep&apos;t of Housing v. Inclusive Communities Project
-                  </em>{" "}
-                  (2015), statistical evidence of racial disparities can
-                  establish prima facie liability without proof of
-                  discriminatory intent.
-                </p>
-                <p className="text-xs text-slate-400 mt-3">
-                  Case law search and statutory provisions powered by Midpage
-                  and TrustFoundry (coming soon).
-                </p>
-              </div>
-            </div>
+            {/* Legal layer — case law + statutory provisions */}
+            <LegalSidebar lenderName={name} />
 
             {/* Methodology */}
             <div className="bg-white rounded-xl border border-slate-200 p-6 text-sm text-slate-600">
