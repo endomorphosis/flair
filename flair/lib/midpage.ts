@@ -33,13 +33,10 @@ export interface MidpageSearchResponse {
   };
 }
 
-export async function searchCaseLaw(
-  lenderName: string,
+export async function searchByQuery(
+  query: string,
   apiKey: string
 ): Promise<MidpageSearchResponse> {
-  // Search for ECOA/FHA cases mentioning this lender
-  const query = `"${lenderName}" AND ("Equal Credit Opportunity Act" OR "ECOA" OR "Fair Housing Act" OR "FHA" OR "disparate impact" OR "fair lending" OR "redlining")`;
-
   const res = await fetch(`${MIDPAGE_BASE}/search`, {
     method: "POST",
     headers: {
@@ -50,7 +47,7 @@ export async function searchCaseLaw(
       query,
       mode: "keyword",
       page: 1,
-      page_size: 10,
+      page_size: 5,
       filters: {
         jurisdictions: ["Federal Appellate", "Federal District"],
       },

@@ -7,7 +7,7 @@ import DenialRateChart from "@/components/DenialRateChart";
 import DisparityProfile from "@/components/DisparityProfile";
 import PeerComparison from "@/components/PeerComparison";
 import TrendChart from "@/components/TrendChart";
-import LegalSidebar from "@/components/LegalSidebar";
+import LegalAnalysis from "@/components/LegalAnalysis";
 import GeographicAnalysis from "@/components/GeographicAnalysis";
 import { US_STATES } from "@/lib/constants";
 
@@ -195,7 +195,16 @@ function ResultsContent() {
 
             {/* Tab: Legal */}
             <div className={activeTab === "legal" ? "" : "hidden print:block"}>
-              <LegalSidebar lenderName={name} />
+              <LegalAnalysis
+                disparityRatios={disparity.disparityRatios}
+                marketRatios={peers?.disparityRatios || []}
+                trends={trends || []}
+                lenderName={name}
+                geoLabel={geoLabel}
+                state={state}
+                lei={lei}
+                year={year}
+              />
             </div>
           </>
         )}

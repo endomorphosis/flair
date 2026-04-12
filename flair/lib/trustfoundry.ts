@@ -20,31 +20,8 @@ export interface TFSearchResponse {
   search_results: TFSearchResult[];
 }
 
-// TrustFoundry returns NDJSON stream. We parse it to extract the citations_ready event.
-export async function searchStatutes(
-  query: string,
-  modelType: "law_question" | "reg_question" | "case_question",
-  apiKey: string
-): Promise<TFSearchResponse | null> {
-  const res = await fetch(`${TF_BASE}/public/v1/search`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "X-API-Key": apiKey,
-    },
-    body: JSON.stringify({
-      query,
-      state: "FED",
-      model_type: modelType,
-    }),
-  });
-
-  if (!res.ok) {
-    const text = await res.text();
-    throw new Error(`TrustFoundry API error ${res.status}: ${text}`);
-  }
-
-  // Parse NDJSON stream
+// Parse NDJSON stream and extract the citations_ready event
+async function parseNDJSON(res: Response): Promise<TFSearchResponse | null> {
   const text = await res.text();
   const lines = text.split("\n").filter((l) => l.trim());
 
@@ -62,43 +39,28 @@ export async function searchStatutes(
   return null;
 }
 
-export async function searchFairLendingStatutes(
+export async function searchByFactPattern(
+  factPattern: string,
   apiKey: string
 ): Promise<TFSearchResult[]> {
-  const results: TFSearchResult[] = [];
-
-  // Search for key fair lending statutory provisions
-  const queries = [
-    {
-      query: "Equal Credit Opportunity Act prohibition on discrimination in credit transactions",
-      type: "law_question" as const,
+  const res = await fetch(`${TF_BASE}/public/v1/search`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "X-API-Key": apiKey,
     },
-    {
-      query: "Fair Housing Act prohibition on discrimination in residential real estate transactions mortgage lending",
-      type: "law_question" as const,
-    },
-    {
-      query: "Regulation B implementing ECOA prohibition on discrimination credit",
-      type: "reg_question" as const,
-    },
-  ];
+    body: JSON.stringify({
+      query: factPattern,
+      state: "FED",
+      model_type: "case_key_fact",
+    }),
+  });
 
-  const responses = await Promise.all(
-    queries.map((q) =>
-      searchStatutes(q.query, q.type, apiKey).catch(() => null)
-    )
-  );
-
-  for (const resp of responses) {
-    if (resp?.search_results) {
-      // Take top 2 from each query, deduplicate by header
-      for (const r of resp.search_results.slice(0, 2)) {
-        if (!results.find((existing) => existing.header === r.header)) {
-          results.push(r);
-        }
-      }
-    }
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`TrustFoundry API error ${res.status}: ${text}`);
   }
 
-  return results;
+  const data = await parseNDJSON(res);
+  return data?.search_results?.slice(0, 5) || [];
 }
