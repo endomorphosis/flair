@@ -270,7 +270,7 @@ export default function LegalAnalysis({
         <h3 className="text-[11px] font-medium tracking-wide text-neutral-500 uppercase mb-1">
           Evidence Assessment
         </h3>
-        <p className="text-xs text-slate-500 mb-4">
+        <p className="text-xs text-neutral-500 mb-4">
           What FLAIR&apos;s analysis establishes for {lenderName} in {geoLabel} ({year})
         </p>
 
@@ -278,7 +278,7 @@ export default function LegalAnalysis({
           {evidence.map((item) => (
             <div
               key={item.label}
-              className="flex items-start gap-3 py-2 border-b border-slate-100 last:border-0"
+              className="flex items-start gap-3 py-2 border-b border-neutral-100 last:border-0"
             >
               <span className="mt-0.5 text-base">
                 {item.status === "supported"
@@ -288,20 +288,20 @@ export default function LegalAnalysis({
                   : "\u274C"}
               </span>
               <div className="flex-1">
-                <p className="text-sm font-medium text-slate-800">
+                <p className="text-sm font-medium text-[#111]">
                   {item.label}
                 </p>
-                <p className="text-xs text-slate-500">{item.detail}</p>
+                <p className="text-xs text-neutral-500">{item.detail}</p>
               </div>
-              <span className="text-xs text-slate-400 text-right max-w-48">
+              <span className="text-xs text-neutral-400 text-right max-w-48">
                 {item.legalElement}
               </span>
             </div>
           ))}
         </div>
 
-        <div className="mt-4 pt-3 border-t border-slate-200">
-          <p className="text-xs text-slate-500">
+        <div className="mt-4 pt-3 border-t border-neutral-200">
+          <p className="text-xs text-neutral-500">
             {supportedCount} of 4 screening elements supported by available data.
             {supportedCount >= 2
               ? " This level of evidence typically warrants further investigation."
@@ -316,40 +316,28 @@ export default function LegalAnalysis({
           <h3 className="text-[11px] font-medium tracking-wide text-neutral-500 uppercase mb-1">
             Available Causes of Action
           </h3>
-          <p className="text-xs text-slate-500 mb-4">
+          <p className="text-xs text-neutral-500 mb-4">
             Legal theories supported by screening data, with enforcement precedent
           </p>
 
           <div className="space-y-6">
             {causesOfAction.map((coa) => (
               <div key={coa.name}>
-                <div
-                  className={`rounded-lg border p-4 ${
-                    coa.evidenceSupport === "strong"
-                      ? "border-blue-200 bg-blue-50"
-                      : "border-slate-200 bg-slate-50"
-                  }`}
-                >
+                <div className="border-b border-neutral-200 pb-4">
                   <div className="flex items-center gap-2 mb-1">
-                    <h4 className="font-semibold text-slate-900">{coa.name}</h4>
-                    <span className="text-xs text-slate-500">({coa.statute})</span>
-                    <span
-                      className={`ml-auto text-xs font-medium px-2 py-0.5 rounded-full ${
-                        coa.evidenceSupport === "strong"
-                          ? "bg-blue-100 text-blue-700"
-                          : "bg-slate-200 text-slate-600"
-                      }`}
-                    >
+                    <h4 className="font-semibold text-[#111]">{coa.name}</h4>
+                    <span className="text-xs text-neutral-500">({coa.statute})</span>
+                    <span className="ml-auto text-[11px] font-medium text-neutral-500">
                       {coa.evidenceSupport === "strong" ? "Strong support" : "Partial support"}
                     </span>
                   </div>
-                  <p className="text-xs text-slate-600 mb-3">{coa.description}</p>
+                  <p className="text-xs text-neutral-600 mb-3">{coa.description}</p>
                   <div className="grid grid-cols-2 gap-1">
                     {coa.elements.map((el) => (
                       <span
                         key={el.label}
                         className={`text-xs flex items-center gap-1.5 ${
-                          el.met ? "text-slate-700" : "text-slate-400"
+                          el.met ? "text-neutral-700" : "text-neutral-400"
                         }`}
                       >
                         {el.met ? "\u2713" : "\u2717"} {el.label}
@@ -360,8 +348,8 @@ export default function LegalAnalysis({
 
                 {/* Enforcement precedent for this cause of action */}
                 {coa.matchingCases.length > 0 && (
-                  <div className="mt-2 ml-4 border-l-2 border-slate-200 pl-4">
-                    <p className="text-xs font-semibold text-slate-600 mb-2">
+                  <div className="mt-3 ml-4 border-l border-neutral-200 pl-4">
+                    <p className="text-xs font-semibold text-neutral-600 mb-2">
                       Enforcement precedent for {coa.name.toLowerCase()}:
                     </p>
                     <div className="space-y-1.5">
@@ -371,24 +359,24 @@ export default function LegalAnalysis({
                             onClick={() =>
                               setExpandedCase(expandedCase === c.id ? null : c.id)
                             }
-                            className="w-full text-left flex items-center gap-2 text-xs hover:bg-slate-50 rounded px-1 py-0.5 -mx-1 transition-colors"
+                            className="w-full text-left flex items-center gap-2 text-xs hover:bg-neutral-50 rounded px-1 py-0.5 -mx-1 transition-colors"
                           >
-                            <span className="font-bold text-slate-800 whitespace-nowrap">
+                            <span className="font-bold text-[#111] whitespace-nowrap">
                               {formatDollars(c.settlementAmount)}
                             </span>
-                            <span className="text-slate-700">
+                            <span className="text-neutral-700">
                               <em>{c.caseName}</em>{" "}
-                              <span className="text-slate-400">({c.year})</span>
+                              <span className="text-neutral-400">({c.year})</span>
                             </span>
-                            <span className="ml-auto text-slate-400">
+                            <span className="ml-auto text-neutral-400">
                               {expandedCase === c.id ? "\u25B2" : "\u25BC"}
                             </span>
                           </button>
                           {expandedCase === c.id && (
-                            <div className="text-xs text-slate-600 mt-1 mb-2 pl-1 space-y-1">
+                            <div className="text-xs text-neutral-600 mt-1 mb-2 pl-1 space-y-1">
                               <p>{c.description}</p>
                               {c.structuredMetrics && (
-                                <div className="bg-slate-100 rounded px-2 py-1.5 text-xs">
+                                <div className="bg-neutral-100 rounded px-2 py-1.5 text-xs">
                                   {c.structuredMetrics.pricingDisparityRatio != null && (
                                     <p>
                                       <span className="font-semibold">Enforcement threshold:</span>{" "}
@@ -429,7 +417,7 @@ export default function LegalAnalysis({
                                   href={c.sourceUrl}
                                   target="_blank"
                                   rel="noopener noreferrer"
-                                  className="text-blue-600 hover:underline inline-block"
+                                  className="text-[#111] underline hover:opacity-60 inline-block"
                                 >
                                   View source
                                 </a>
@@ -452,28 +440,21 @@ export default function LegalAnalysis({
         <h3 className="text-[11px] font-medium tracking-wide text-neutral-500 uppercase mb-1">
           Enforcement Landscape
         </h3>
-        <p className="text-xs text-slate-500 mb-4">
+        <p className="text-xs text-neutral-500 mb-4">
           Federal and state fair lending enforcement activity ({summary.yearRange.earliest}-{summary.yearRange.latest})
         </p>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
-          <div className="bg-slate-50 rounded-lg p-3">
-            <p className="text-2xl font-bold text-slate-900">{summary.totalCases}</p>
-            <p className="text-xs text-slate-500">enforcement actions</p>
-          </div>
-          <div className="bg-slate-50 rounded-lg p-3">
-            <p className="text-2xl font-bold text-slate-900">
-              {formatDollars(summary.totalSettlementDollars)}
-            </p>
-            <p className="text-xs text-slate-500">total settlements</p>
-          </div>
-          <div className="bg-slate-50 rounded-lg p-3">
-            <p className="text-2xl font-bold text-slate-900">{summary.byTheory.redlining}</p>
-            <p className="text-xs text-slate-500">redlining cases</p>
-          </div>
-          <div className="bg-slate-50 rounded-lg p-3">
-            <p className="text-2xl font-bold text-slate-900">{summary.byType.doj}</p>
-            <p className="text-xs text-slate-500">DOJ-led cases</p>
-          </div>
+        <div className="grid grid-cols-4 gap-8">
+          {[
+            { value: String(summary.totalCases), label: "enforcement actions" },
+            { value: formatDollars(summary.totalSettlementDollars), label: "total settlements" },
+            { value: String(summary.byTheory.redlining), label: "redlining cases" },
+            { value: String(summary.byType.doj), label: "DOJ-led cases" },
+          ].map((s) => (
+            <div key={s.label}>
+              <p className="text-2xl font-bold text-[#111]">{s.value}</p>
+              <p className="text-[11px] text-neutral-500 mt-1">{s.label}</p>
+            </div>
+          ))}
         </div>
       </div>
     </div>

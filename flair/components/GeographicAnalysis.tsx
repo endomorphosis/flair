@@ -61,12 +61,12 @@ export default function GeographicAnalysis({ lei, state, year, lenderName, geoLa
 
   if (loading) {
     return (
-      <div className="py-2">
-        <h3 className="text-[11px] font-medium tracking-wide text-neutral-500 uppercase mb-2">
-          Geographic Lending Pattern Analysis
-        </h3>
-        <div className="flex items-center gap-2 text-sm text-slate-400 py-8">
-          <div className="w-4 h-4 border-2 border-slate-300 border-t-slate-600 rounded-full animate-spin" />
+      <div>
+        <p className="text-[11px] font-medium tracking-wide text-neutral-500 uppercase mb-2">
+          Geographic Lending Patterns
+        </p>
+        <div className="flex items-center gap-2 text-sm text-neutral-400 py-8">
+          <div className="w-4 h-4 border-2 border-neutral-300 border-t-[#111] rounded-full animate-spin" />
           Fetching county demographics and lending patterns...
         </div>
       </div>
@@ -75,11 +75,11 @@ export default function GeographicAnalysis({ lei, state, year, lenderName, geoLa
 
   if (error || !data) {
     return (
-      <div className="py-2">
-        <h3 className="text-[11px] font-medium tracking-wide text-neutral-500 uppercase mb-2">
-          Geographic Lending Pattern Analysis
-        </h3>
-        <p className="text-sm text-amber-600">
+      <div>
+        <p className="text-[11px] font-medium tracking-wide text-neutral-500 uppercase mb-2">
+          Geographic Lending Patterns
+        </p>
+        <p className="text-sm text-neutral-500">
           Geographic analysis unavailable: {error || "No data returned"}
         </p>
       </div>
@@ -99,116 +99,102 @@ export default function GeographicAnalysis({ lei, state, year, lenderName, geoLa
     },
   ];
 
-  const isUnderserving = data.gap < -5; // lender is 5+ pts below market in majority-minority areas
+  const isUnderserving = data.gap < -5;
   const isOverserving = data.gap > 5;
 
   return (
-    <div className="py-2">
-      <h3 className="text-[11px] font-medium tracking-wide text-neutral-500 uppercase mb-1">
-        Geographic Lending Pattern Analysis
-      </h3>
-      <p className="text-xs text-slate-500 mb-4">
+    <div>
+      <p className="text-[11px] font-medium tracking-wide text-neutral-500 uppercase mb-1">
+        Geographic Lending Patterns
+      </p>
+      <p className="text-[13px] text-neutral-400 mb-8">
         Application distribution across majority-minority vs. majority-White
-        counties in {geoLabel} ({year}) — based on Census ACS county demographics
+        counties in {geoLabel} ({year})
       </p>
 
       {/* Headline comparison */}
-      <div
-        className={`rounded-lg border p-4 mb-5 ${
-          isUnderserving
-            ? "bg-red-50 border-red-200"
-            : isOverserving
-            ? "bg-green-50 border-green-200"
-            : "bg-slate-50 border-slate-200"
-        }`}
-      >
-        <div className="grid grid-cols-2 gap-4 text-center mb-3">
-          <div>
-            <p className="text-xs text-slate-500 mb-1">
-              {lenderName}
-            </p>
-            <p className="text-2xl font-bold text-slate-900">
-              {data.lender.mmPct.toFixed(1)}%
-            </p>
-            <p className="text-xs text-slate-500">
-              of applications in majority-minority counties
-            </p>
-          </div>
-          <div>
-            <p className="text-xs text-slate-500 mb-1">Market Average</p>
-            <p className="text-2xl font-bold text-slate-600">
-              {data.market.mmPct.toFixed(1)}%
-            </p>
-            <p className="text-xs text-slate-500">
-              of applications in majority-minority counties
-            </p>
-          </div>
+      <div className="grid grid-cols-2 gap-8 mb-6">
+        <div>
+          <p className="text-[11px] text-neutral-500 mb-1">{lenderName}</p>
+          <p className="text-3xl font-bold text-[#111]">
+            {data.lender.mmPct.toFixed(1)}%
+          </p>
+          <p className="text-[13px] text-neutral-500 mt-1">
+            in majority-minority counties
+          </p>
         </div>
-
-        <p className="text-sm text-center">
-          {isUnderserving ? (
-            <span className="text-red-700 font-semibold">
-              {lenderName} is {Math.abs(data.gap).toFixed(1)} percentage points
-              below the market average in majority-minority counties.
-              {Math.abs(data.gap) > 10 &&
-                " This gap may indicate potential redlining concerns."}
-            </span>
-          ) : isOverserving ? (
-            <span className="text-green-700">
-              {lenderName} lends at a higher rate in majority-minority counties
-              than the market average (+{data.gap.toFixed(1)} pts).
-            </span>
-          ) : (
-            <span className="text-slate-600">
-              {lenderName}&apos;s lending distribution is roughly in line with the
-              market average ({data.gap > 0 ? "+" : ""}{data.gap.toFixed(1)} pts).
-            </span>
-          )}
-        </p>
+        <div>
+          <p className="text-[11px] text-neutral-500 mb-1">Market Average</p>
+          <p className="text-3xl font-bold text-neutral-400">
+            {data.market.mmPct.toFixed(1)}%
+          </p>
+          <p className="text-[13px] text-neutral-500 mt-1">
+            in majority-minority counties
+          </p>
+        </div>
       </div>
+
+      <p className="text-[13px] mb-8">
+        {isUnderserving ? (
+          <span className="text-red-700 font-medium">
+            {lenderName} is {Math.abs(data.gap).toFixed(1)} percentage points
+            below the market average in majority-minority counties.
+            {Math.abs(data.gap) > 10 &&
+              " This gap may indicate potential redlining concerns."}
+          </span>
+        ) : isOverserving ? (
+          <span className="text-neutral-600">
+            {lenderName} lends at a higher rate in majority-minority counties
+            than the market average (+{data.gap.toFixed(1)} pts).
+          </span>
+        ) : (
+          <span className="text-neutral-600">
+            {lenderName}&apos;s lending distribution is roughly in line with the
+            market average ({data.gap > 0 ? "+" : ""}{data.gap.toFixed(1)} pts).
+          </span>
+        )}
+      </p>
 
       {/* Chart */}
       <ResponsiveContainer width="100%" height={250}>
         <BarChart data={chartData} margin={{ top: 5, right: 20, left: 10, bottom: 5 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-          <XAxis dataKey="name" tick={{ fontSize: 12 }} />
-          <YAxis tickFormatter={(v) => `${v}%`} tick={{ fontSize: 12 }} />
-          <Tooltip formatter={(value) => [`${value}%`, ""]} />
+          <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+          <XAxis dataKey="name" tick={{ fontSize: 12, fill: "#737373" }} tickLine={false} axisLine={{ stroke: "#e5e5e5" }} />
+          <YAxis tickFormatter={(v) => `${v}%`} tick={{ fontSize: 12, fill: "#737373" }} tickLine={false} axisLine={false} />
+          <Tooltip formatter={(value) => [`${value}%`, ""]} contentStyle={{ borderRadius: "2px", border: "1px solid #e5e5e5", fontSize: "13px" }} />
           <Legend />
-          <Bar dataKey={lenderName} fill="#2563eb" radius={[4, 4, 0, 0]} maxBarSize={50} />
-          <Bar dataKey="Market Average" fill="#94a3b8" radius={[4, 4, 0, 0]} maxBarSize={50} />
+          <Bar dataKey={lenderName} fill="#111" radius={[2, 2, 0, 0]} maxBarSize={48} />
+          <Bar dataKey="Market Average" fill="#d4d4d4" radius={[2, 2, 0, 0]} maxBarSize={48} />
         </BarChart>
       </ResponsiveContainer>
 
       {/* Detail stats */}
-      <div className="mt-4 grid grid-cols-2 gap-4 text-sm">
-        <div className="bg-slate-50 rounded-lg p-3">
-          <p className="font-medium text-slate-800 mb-1">Majority-Minority Counties</p>
-          <p className="text-xs text-slate-500">
-            {data.counties.majorityMinorityCount} counties (&gt;50% non-White population)
+      <div className="mt-8 grid grid-cols-2 gap-8">
+        <div className="border-b border-neutral-200 pb-4">
+          <p className="text-sm font-semibold text-[#111] mb-1">Majority-Minority Counties</p>
+          <p className="text-[11px] text-neutral-500">
+            {data.counties.majorityMinorityCount} counties (&gt;50% non-White)
           </p>
-          <p className="text-xs text-slate-600 mt-1">
-            {lenderName}: {data.lender.majorityMinority.applications.toLocaleString()} applications
-            ({data.lender.mmDenialRate.toFixed(1)}% denied)
+          <p className="text-[13px] text-neutral-500 mt-1">
+            {data.lender.majorityMinority.applications.toLocaleString()} applications
+            &middot; {data.lender.mmDenialRate.toFixed(1)}% denied
           </p>
         </div>
-        <div className="bg-slate-50 rounded-lg p-3">
-          <p className="font-medium text-slate-800 mb-1">Majority-White Counties</p>
-          <p className="text-xs text-slate-500">
+        <div className="border-b border-neutral-200 pb-4">
+          <p className="text-sm font-semibold text-[#111] mb-1">Majority-White Counties</p>
+          <p className="text-[11px] text-neutral-500">
             {data.counties.majorityWhiteCount} counties (&gt;50% non-Hispanic White)
           </p>
-          <p className="text-xs text-slate-600 mt-1">
-            {lenderName}: {data.lender.majorityWhite.applications.toLocaleString()} applications
-            ({data.lender.mwDenialRate.toFixed(1)}% denied)
+          <p className="text-[13px] text-neutral-500 mt-1">
+            {data.lender.majorityWhite.applications.toLocaleString()} applications
+            &middot; {data.lender.mwDenialRate.toFixed(1)}% denied
           </p>
         </div>
       </div>
 
-      <p className="text-xs text-slate-400 mt-4">
+      <p className="text-[11px] text-neutral-400 mt-6">
         County demographics from U.S. Census ACS 5-Year Estimates (2022).
-        Majority-minority defined as &gt;50% non-Hispanic non-White population.
-        Lending data from HMDA. Geographic analysis mirrors methodology used in
-        DOJ redlining complaints (e.g., DOJ v. City National Bank, 2024).
+        Geographic analysis mirrors methodology used in DOJ redlining complaints.
       </p>
     </div>
   );
