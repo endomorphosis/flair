@@ -39,6 +39,32 @@ async function parseNDJSON(res: Response): Promise<TFSearchResponse | null> {
   return null;
 }
 
+export interface TFCaseDescription {
+  type: "case";
+  description: {
+    cases_overruled_distinguished_by_this_case: string[];
+    categories: string[];
+    context_summary: string;
+    exceptions_created: string;
+    key_facts_that_mattered: string;
+    legal_principle_created_modified: string;
+    legal_test_established: string;
+    primary_holding: string;
+    scope_of_application: string;
+  };
+}
+
+export async function describeCaseResult(
+  uuid: string,
+  apiKey: string
+): Promise<TFCaseDescription | null> {
+  const res = await fetch(`${TF_BASE}/public/v1/search/results/items/describe/${uuid}`, {
+    headers: { "X-API-Key": apiKey },
+  });
+  if (!res.ok) return null;
+  return res.json();
+}
+
 export async function searchByFactPattern(
   factPattern: string,
   apiKey: string

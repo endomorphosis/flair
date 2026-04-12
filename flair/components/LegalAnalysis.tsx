@@ -8,6 +8,14 @@ interface TrendYear {
   disparityRatios: DisparityRatio[];
 }
 
+interface CaseDescription {
+  primary_holding: string;
+  key_facts_that_mattered: string;
+  legal_principle_created_modified: string;
+  legal_test_established: string;
+  context_summary: string;
+}
+
 interface CaseResult {
   id: string;
   case_name: string;
@@ -16,6 +24,13 @@ interface CaseResult {
   snippet: string;
   source: "midpage" | "trustfoundry";
   url?: string;
+  // Enriched fields from Midpage
+  citations?: { cited_as: string }[];
+  citation_count?: number;
+  overall_treatment?: string;
+  judge_name?: string;
+  // Enriched fields from TrustFoundry
+  caseDescription?: CaseDescription | null;
 }
 
 interface EvidenceItem {
@@ -268,13 +283,28 @@ export default function LegalAnalysis({
         .then((r) => r.json())
         .then((d): CaseResult[] =>
           (d.results || []).map(
-            (r: { opinion_id: string; case_name: string; court_abbreviation?: string; court_name?: string; date_filed: string | null; snippet: string }) => ({
+            (r: {
+              opinion_id: string;
+              case_name: string;
+              court_abbreviation?: string;
+              court_name?: string;
+              date_filed: string | null;
+              snippet: string;
+              citations?: { cited_as: string }[];
+              citation_count?: number;
+              overall_treatment?: string;
+              judge_name?: string;
+            }) => ({
               id: `mp-${r.opinion_id}`,
               case_name: r.case_name,
               court: r.court_abbreviation || r.court_name,
               date_filed: r.date_filed,
               snippet: r.snippet,
               source: "midpage" as const,
+              citations: r.citations,
+              citation_count: r.citation_count,
+              overall_treatment: r.overall_treatment,
+              judge_name: r.judge_name,
             })
           )
         )
@@ -288,13 +318,22 @@ export default function LegalAnalysis({
       .then((d): CaseResult[] =>
         (d.results || [])
           .filter((r: { result_type: string }) => r.result_type === "case")
-          .map((r: { uuid: string; header: string; excerpt: string; url?: string }) => ({
-            id: `tf-${r.uuid}`,
-            case_name: r.header,
-            snippet: r.excerpt,
-            source: "trustfoundry" as const,
-            url: r.url,
-          }))
+          .map(
+            (r: {
+              uuid: string;
+              header: string;
+              excerpt: string;
+              url?: string;
+              caseDescription?: CaseDescription | null;
+            }) => ({
+              id: `tf-${r.uuid}`,
+              case_name: r.header,
+              snippet: r.excerpt,
+              source: "trustfoundry" as const,
+              url: r.url,
+              caseDescription: r.caseDescription,
+            })
+          )
       )
       .catch(() => [] as CaseResult[]);
 
@@ -464,16 +503,86 @@ export default function LegalAnalysis({
                   </span>
                 </button>
                 {expandedCase === c.id && (
-                  <div className="px-4 pb-3 border-t border-slate-100">
-                    <p className="text-xs text-slate-600 mt-2 leading-relaxed">
-                      {c.snippet}
-                    </p>
+                  <div className="px-4 pb-4 border-t border-slate-100 space-y-2 mt-2">
+                    {/* Midpage enriched details */}
+                    {c.source === "midpage" && (
+                      <>
+                        {c.citations && c.citations.length > 0 && (
+                          <p className="text-xs text-slate-700">
+                            <span className="font-semibold">Citation:</span>{" "}
+                            {c.citations.map((ct) => ct.cited_as).join("; ")}
+                          </p>
+                        )}
+                        <div className="flex gap-3 text-xs">
+                          {c.judge_name && (
+                            <span className="text-slate-600">
+                              <span className="font-semibold">Judge:</span> {c.judge_name}
+                            </span>
+                          )}
+                          {c.citation_count != null && (
+                            <span className="text-slate-600">
+                              <span className="font-semibold">Cited by:</span> {c.citation_count.toLocaleString()} opinions
+                            </span>
+                          )}
+                          {c.overall_treatment && (
+                            <span className={`font-semibold ${
+                              c.overall_treatment === "Positive" ? "text-green-600" :
+                              c.overall_treatment === "Negative" ? "text-red-600" :
+                              "text-slate-600"
+                            }`}>
+                              Treatment: {c.overall_treatment}
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-xs text-slate-600 leading-relaxed">
+                          {c.snippet}
+                        </p>
+                      </>
+                    )}
+
+                    {/* TrustFoundry enriched details */}
+                    {c.source === "trustfoundry" && c.caseDescription && (
+                      <div className="space-y-2">
+                        {c.caseDescription.primary_holding && (
+                          <div>
+                            <p className="text-xs font-semibold text-slate-700">Holding</p>
+                            <p className="text-xs text-slate-600 leading-relaxed">
+                              {c.caseDescription.primary_holding}
+                            </p>
+                          </div>
+                        )}
+                        {c.caseDescription.key_facts_that_mattered && (
+                          <div>
+                            <p className="text-xs font-semibold text-slate-700">Key Facts</p>
+                            <p className="text-xs text-slate-600 leading-relaxed">
+                              {c.caseDescription.key_facts_that_mattered}
+                            </p>
+                          </div>
+                        )}
+                        {c.caseDescription.legal_test_established && (
+                          <div>
+                            <p className="text-xs font-semibold text-slate-700">Legal Test</p>
+                            <p className="text-xs text-slate-600 leading-relaxed">
+                              {c.caseDescription.legal_test_established}
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Fallback: raw snippet if no enrichment */}
+                    {c.source === "trustfoundry" && !c.caseDescription && (
+                      <p className="text-xs text-slate-600 leading-relaxed">
+                        {c.snippet}
+                      </p>
+                    )}
+
                     {c.url && (
                       <a
                         href={c.url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-xs text-blue-600 hover:underline mt-2 inline-block"
+                        className="text-xs text-blue-600 hover:underline inline-block"
                       >
                         View full opinion
                       </a>

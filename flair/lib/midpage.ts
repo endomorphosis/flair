@@ -33,6 +33,42 @@ export interface MidpageSearchResponse {
   };
 }
 
+export interface MidpageOpinion {
+  id: string;
+  case_name: string;
+  court_id: string;
+  court_abbreviation?: string;
+  docket_number?: string;
+  state: string;
+  date_filed: string | null;
+  judge_name?: string;
+  citations: { cited_as: string; volume: string; reporter: string; page: string }[];
+  citation_count?: number;
+  overall_treatment?: string;
+}
+
+export async function getOpinionDetails(
+  opinionIds: string[],
+  apiKey: string
+): Promise<MidpageOpinion[]> {
+  const res = await fetch(`${MIDPAGE_BASE}/opinions/get`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${apiKey}`,
+    },
+    body: JSON.stringify({
+      opinion_ids: opinionIds,
+      include_content: false,
+      include_detailed_treatments: false,
+    }),
+  });
+
+  if (!res.ok) return [];
+  const data = await res.json();
+  return data.opinions || [];
+}
+
 export async function searchByQuery(
   query: string,
   apiKey: string
