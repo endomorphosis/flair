@@ -8,6 +8,7 @@ import DisparityProfile from "@/components/DisparityProfile";
 import PeerComparison from "@/components/PeerComparison";
 import TrendChart from "@/components/TrendChart";
 import LegalSidebar from "@/components/LegalSidebar";
+import GeographicAnalysis from "@/components/GeographicAnalysis";
 import { US_STATES } from "@/lib/constants";
 
 interface DisparityData {
@@ -143,6 +144,17 @@ function ResultsContent() {
             {/* Trend */}
             {trends && trends.length > 0 && (
               <TrendChart trends={trends} lenderName={name} />
+            )}
+
+            {/* Geographic lending pattern analysis */}
+            {state && (
+              <GeographicAnalysis
+                lei={lei}
+                state={state}
+                year={year}
+                lenderName={name}
+                geoLabel={geoLabel}
+              />
             )}
 
             {/* Legal layer — case law + statutory provisions */}
