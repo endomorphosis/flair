@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { getEnforcementSummary, getTotalSettlementAmount, ENFORCEMENT_CASES } from "@/lib/enforcement-cases";
+import { getEnforcementSummary, getTotalSettlementAmount, ENFORCEMENT_CASES, getCasesByLegalTheory } from "@/lib/enforcement-cases";
 
 export default function AboutPage() {
   const summary = getEnforcementSummary();
@@ -7,6 +7,10 @@ export default function AboutPage() {
   const recentCases = ENFORCEMENT_CASES
     .filter((c) => c.year >= 2021)
     .sort((a, b) => b.settlementAmount - a.settlementAmount);
+
+  const redliningCases = getCasesByLegalTheory("redlining");
+  const pricingCases = getCasesByLegalTheory("pricing discrimination");
+  const disparateImpactCases = getCasesByLegalTheory("disparate impact");
 
   return (
     <div className="min-h-[calc(100vh-3rem)]">
@@ -50,7 +54,7 @@ export default function AboutPage() {
           <p className="text-[11px] font-medium tracking-wide text-neutral-500 uppercase mb-6">
             The Enforcement Funnel
           </p>
-          <div className="space-y-2 max-w-md">
+          <div className="flex flex-col gap-1.5 max-w-md">
             {[
               { value: "~5,000", label: "Lenders reporting HMDA data", pct: 100 },
               { value: "Hundreds", label: "With statistically significant disparities", pct: 70 },
@@ -61,7 +65,7 @@ export default function AboutPage() {
             ].map((step, i) => (
               <div key={i} className="flex items-center gap-4">
                 <div
-                  className="bg-neutral-900 text-white text-[13px] font-semibold py-2 px-3 flex-shrink-0"
+                  className="bg-neutral-900 text-white text-[13px] font-semibold py-1.5 px-3 flex-shrink-0"
                   style={{ width: `${step.pct}%`, minWidth: "60px" }}
                 >
                   {step.value}
@@ -78,12 +82,12 @@ export default function AboutPage() {
           </p>
         </section>
 
-        {/* Before / After */}
+        {/* Before / After — always side by side */}
         <section className="mb-20">
           <p className="text-[11px] font-medium tracking-wide text-neutral-500 uppercase mb-6">
             Before and After
           </p>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+          <div className="grid grid-cols-2 gap-12">
             <div>
               <p className="text-sm font-semibold text-[#111] mb-4">Without FLAIR</p>
               <ul className="space-y-3 text-[13px] text-neutral-500">
@@ -137,6 +141,68 @@ export default function AboutPage() {
           </div>
         </section>
 
+        {/* Causes of Action */}
+        <section className="mb-20">
+          <p className="text-[11px] font-medium tracking-wide text-neutral-500 uppercase mb-6">
+            Causes of Action
+          </p>
+          <div className="space-y-6">
+            <div className="border-b border-neutral-200 pb-6">
+              <div className="flex items-baseline justify-between mb-2">
+                <p className="text-sm font-semibold text-[#111]">
+                  Redlining — Fair Housing Act &sect; 3604
+                </p>
+                <p className="text-[13px] tabular-nums text-neutral-500">
+                  {redliningCases.length} cases
+                </p>
+              </div>
+              <p className="text-[13px] text-neutral-500 leading-relaxed">
+                Geographic pattern of avoiding majority-minority communities
+                in lending activity. The dominant theory in recent DOJ enforcement —
+                4 of the 5 most recent settlements are redlining cases. FLAIR
+                detects this by comparing a lender&apos;s application share in
+                majority-minority counties against the market average.
+              </p>
+            </div>
+            <div className="border-b border-neutral-200 pb-6">
+              <div className="flex items-baseline justify-between mb-2">
+                <p className="text-sm font-semibold text-[#111]">
+                  Disparate Impact — Fair Housing Act &sect; 3605
+                </p>
+                <p className="text-[13px] tabular-nums text-neutral-500">
+                  {disparateImpactCases.length} cases
+                </p>
+              </div>
+              <p className="text-[13px] text-neutral-500 leading-relaxed">
+                Statistical evidence of racial disparities in lending outcomes
+                establishes prima facie liability without proof of discriminatory
+                intent. Under <em>Texas Dep&apos;t of Housing v. Inclusive
+                Communities</em> (2015), denial rate ratios and peer comparisons
+                are the type of evidence used in this analysis. FLAIR computes
+                both automatically.
+              </p>
+            </div>
+            <div className="border-b border-neutral-200 pb-6">
+              <div className="flex items-baseline justify-between mb-2">
+                <p className="text-sm font-semibold text-[#111]">
+                  ECOA Discrimination — 15 U.S.C. &sect; 1691
+                </p>
+                <p className="text-[13px] tabular-nums text-neutral-500">
+                  {pricingCases.length} cases
+                </p>
+              </div>
+              <p className="text-[13px] text-neutral-500 leading-relaxed">
+                Prohibits discrimination in any aspect of a credit transaction
+                on the basis of race, color, national origin, sex, marital status,
+                or age. Historically pursued through pricing discrimination
+                cases — minority borrowers charged higher rates than similarly
+                situated White borrowers. FLAIR&apos;s denial rate disparity
+                ratios provide the screening evidence.
+              </p>
+            </div>
+          </div>
+        </section>
+
         {/* How it works */}
         <section className="mb-20">
           <p className="text-[11px] font-medium tracking-wide text-neutral-500 uppercase mb-6">
@@ -147,7 +213,7 @@ export default function AboutPage() {
               { n: "1", title: "Search", desc: "Lender name + geography" },
               { n: "2", title: "Analyze", desc: "Denial rates, peers, geography" },
               { n: "3", title: "Map to Law", desc: "Evidence checklist + causes of action" },
-              { n: "4", title: "Act", desc: "HUD complaint, demand letter, referral" },
+              { n: "4", title: "Act", desc: "File HUD complaint, draft demand letter, refer to DOJ" },
             ].map((step) => (
               <div key={step.n} className="flex-1">
                 <p className="text-2xl font-bold text-neutral-200">{step.n}</p>
@@ -156,6 +222,10 @@ export default function AboutPage() {
               </div>
             ))}
           </div>
+          <p className="text-[13px] text-neutral-400 mt-6">
+            FLAIR provides the screening and evidence mapping (steps 1–3).
+            Step 4 is the attorney&apos;s decision based on the findings.
+          </p>
         </section>
 
         {/* Recent enforcement */}
