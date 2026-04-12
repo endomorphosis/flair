@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "FLAIR — Fair Lending AI Report",
+  title: "FLAIR — Fair Lending AI Radar",
   description:
     "Look up any mortgage lender. See racial disparities in loan denials backed by federal HMDA data. Identify outliers. Connect to the legal framework.",
 };
