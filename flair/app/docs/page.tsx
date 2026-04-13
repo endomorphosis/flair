@@ -58,6 +58,22 @@ export default function DocsPage() {
                 desc: "Denial rate for a racial group divided by the denial rate for White applicants. A ratio of 2.0x means the group is denied at twice the rate. White is used as the baseline group, mirroring DOJ and CFPB methodology where the comparison group is non-Hispanic White borrowers.",
               },
               {
+                name: "95% Confidence Interval (Log-Ratio Delta Method)",
+                desc: "Each disparity ratio is reported with a 95% confidence interval computed via the log-ratio delta method (Katz et al. 1978). The interval captures sampling uncertainty: a ratio of 2.1x with a 95% CI of [1.8x–2.4x] means we can be 95% confident the true ratio lies in that range. Ratios whose CI excludes 1.0x are statistically distinguishable from parity.",
+              },
+              {
+                name: "Chi-Square Test of Independence (Yates-Corrected)",
+                desc: "Each racial group comparison uses a Yates continuity-corrected chi-square test with 1 degree of freedom. H\u2080: denial rate is independent of race. A p-value below 0.05 indicates the disparity is unlikely due to chance at the 5% significance level. Groups with expected cell counts below 5 are flagged (chi-square approximation is unreliable for small cells).",
+              },
+              {
+                name: "Cochran-Mantel-Haenszel (CMH) Stratified Test",
+                desc: "The CMH test (Mantel & Haenszel 1959) pools the racial association across multiple strata (loan type strata, income band strata) and produces a single chi-square statistic with 1 df under H\u2080: no partial association in any stratum. A significant CMH result means the racial disparity persists after conditioning on the strata variable \u2014 it cannot be explained by composition differences in loan type or income. The Mantel-Haenszel common odds-ratio is reported as a controlled effect size. Strata with expected cell counts below 5 are excluded from the pool per Cochran (1954).",
+              },
+              {
+                name: "Stratified Disparity Analysis (Controls Tab)",
+                desc: "Disparity ratios are computed separately within each loan type (Conventional, FHA, VA, USDA) and each loan purpose (Purchase vs. Refinance). Conventional purchase loans are the legally strongest stratum because they carry no government guarantee and leave the most underwriting discretion with the lender. Disparities that persist within a stratum cannot be attributed to loan-type composition. Income band stratification (when available) further controls for applicant income reported in HMDA.",
+              },
+              {
                 name: "Peer Comparison",
                 desc: "Compares the lender\u2019s disparity ratios against the aggregate of all lenders in the same geography (statewide or MSA-level). When an MSA is selected, the comparison narrows to that metro area \u2014 matching the methodology DOJ uses to define peer lenders. The delta between lender and market ratios identifies outliers.",
               },
@@ -68,6 +84,14 @@ export default function DocsPage() {
               {
                 name: "Trend Analysis",
                 desc: "Disparity ratios computed for 2020\u20132024 show whether disparities are persistent, improving, or worsening. Persistent multi-year disparities strengthen the evidentiary basis for fair lending claims \u2014 they distinguish a pattern or practice from statistical noise.",
+              },
+              {
+                name: "Minimum Detectable Ratio (Power Analysis)",
+                desc: "Given the number of applications per racial group and the White denial rate, FLAIR computes the smallest disparity ratio detectable at 80% power and 95% two-sided confidence (two-proportion z-test). If the minimum detectable ratio (MDR) is above 1.5x, the sample is underpowered: a non-significant result does not mean discrimination is absent \u2014 it means the sample is too small to detect it. Courts distinguish \u201cdisparity not detected\u201d (a finding) from \u201csample too small to detect disparity\u201d (a limitation).",
+              },
+              {
+                name: "Data Quality Disclosure (Controls Tab)",
+                desc: "The Controls tab discloses: (1) loan type distribution by race \u2014 if FHA usage differs by \u226520 percentage points between racial groups, raw denial rates conflate loan-type composition with race, and a warning is shown; (2) application attrition rates (withdrawn + incomplete) by race \u2014 higher attrition for minority groups may indicate lender discouragement; (3) occupancy type distribution by race \u2014 investment property loans face higher denial rates and can confound comparisons.",
               },
             ].map((method) => (
               <div key={method.name} className="border-b border-neutral-200 pb-5">
@@ -94,19 +118,27 @@ export default function DocsPage() {
                 practice for statistical reliability. Groups below the
                 threshold can still be toggled on in the denial rate chart
                 via checkboxes, but are flagged with a low-sample warning.
+                In stratified analysis (Controls tab), strata with expected
+                cell counts below 5 are excluded from CMH pools per standard
+                practice (Cochran 1954).
               </p>
             </div>
             <div className="border-b border-neutral-200 pb-5">
               <p className="text-sm font-semibold text-[#111] mb-1">
-                Statistical Significance
+                Statistical Significance and Confidence Intervals
               </p>
               <p className="text-[13px] text-neutral-500 leading-relaxed">
-                DOJ does not cite a fixed threshold for actionable
-                disparities. Enforcement actions use &ldquo;statistically
-                significant&rdquo; combined with practical magnitude. FLAIR
-                flags ratios above 1.5x as warranting investigation, which
-                aligns with the level at which federal regulators typically
-                escalate screening findings.
+                DOJ does not cite a fixed threshold for actionable disparities.
+                Enforcement actions use &ldquo;statistically significant&rdquo;
+                combined with practical magnitude. FLAIR flags ratios above 1.5x
+                as warranting investigation. Each ratio is tested with a
+                Yates-corrected chi-square test (p&lt;0.05 = significant) and
+                reported with a 95% confidence interval via the log-ratio delta
+                method. A ratio of 2.1x with a 95% CI of [1.7x–2.6x] means we
+                can be 95% confident the true ratio lies in that range; its
+                lower bound of 1.7x well exceeds the 1.5x investigation threshold.
+                For CMH tests across strata, the same chi-square (1 df) criterion
+                applies after pooling.
               </p>
             </div>
             <div className="border-b border-neutral-200 pb-5">
@@ -215,14 +247,20 @@ export default function DocsPage() {
           </p>
           <div className="text-[13px] text-neutral-500 leading-relaxed space-y-4">
             <p>
-              <strong className="text-[#111]">FLAIR is a statistical screening tool,
-              not a regression analysis.</strong> It does not control for
-              creditworthiness factors (credit score, DTI, LTV ratio) that
-              affect lending decisions. These variables are not available in
-              public HMDA data — they require litigation discovery (FRCP
-              Rules 26/34) or government subpoenas (Civil Investigative
-              Demands). This is a sequencing limitation, not a fundamental
+              <strong className="text-[#111]">FLAIR controls for observable HMDA variables
+              (loan type, loan purpose, income band, occupancy type) but not for unobservable
+              creditworthiness factors.</strong> Credit score, exact debt-to-income ratio, and
+              loan-to-value ratio are not available in public HMDA data. They require
+              litigation discovery (FRCP Rules 26/34) or government subpoenas (Civil
+              Investigative Demands). This is a sequencing limitation, not a fundamental
               one: plaintiffs obtain this data after filing, not before.
+            </p>
+            <p>
+              The Controls tab applies Cochran-Mantel-Haenszel stratified tests across
+              loan-type strata and (where the HMDA API supports income range queries)
+              income-band strata. These are partial controls available pre-litigation.
+              A significant CMH result after controlling for loan type means the disparity
+              cannot be fully attributed to the FHA/conventional composition difference.
             </p>
             <p>
               The 1994 Interagency Policy Statement on Discrimination in
@@ -237,6 +275,15 @@ export default function DocsPage() {
               exist. A qualified expert witness and regression analysis are
               required for litigation. FLAIR replaces the $15,000–$50,000
               screening engagement that decides whether to hire one.
+            </p>
+            <p>
+              <strong className="text-[#111]">Power and sample size.</strong> Small lenders
+              or small racial minority groups may have insufficient applications to detect
+              moderate disparities at conventional significance thresholds. The Minimum
+              Detectable Ratio (MDR) shown in the Controls tab quantifies this: if the MDR
+              exceeds 1.5x, the sample is underpowered to detect a moderate disparity even
+              if one exists. Pooling multiple years (supported in the Peers &amp; Trends tab)
+              increases statistical power.
             </p>
             <p>
               This tool does not perform matched-pairs analysis (requires

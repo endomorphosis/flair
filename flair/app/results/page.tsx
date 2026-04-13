@@ -9,6 +9,8 @@ import PeerComparison from "@/components/PeerComparison";
 import TrendChart from "@/components/TrendChart";
 import LegalAnalysis from "@/components/LegalAnalysis";
 import GeographicAnalysis from "@/components/GeographicAnalysis";
+import StratifiedAnalysis from "@/components/StratifiedAnalysis";
+import DataQuality from "@/components/DataQuality";
 import { US_STATES } from "@/lib/constants";
 
 interface DisparityData {
@@ -22,10 +24,20 @@ interface TrendYear {
   disparityRatios: DisparityRatio[];
 }
 
+/** Minimal summary extracted from /api/stratified for Legal tab */
+interface ControlledDisparitySummary {
+  significantInConventionalPurchase: boolean;
+  cmhLoanTypeSignificant: boolean;
+  cmhIncomeBandSignificant: boolean;
+  incomeBandsAvailable: boolean;
+  anyGroupUnderpowered: boolean;
+}
+
 const TABS = [
   { id: "disparity", label: "Disparity" },
   { id: "peers", label: "Peers & Trends" },
   { id: "geographic", label: "Geography" },
+  { id: "controls", label: "Controls" },
   { id: "legal", label: "Legal" },
 ] as const;
 
@@ -53,6 +65,7 @@ function ResultsContent() {
   const [disparity, setDisparity] = useState<DisparityData | null>(null);
   const [peers, setPeers] = useState<DisparityData | null>(null);
   const [trends, setTrends] = useState<TrendYear[] | null>(null);
+  const [controlledDisparity, setControlledDisparity] = useState<ControlledDisparitySummary | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -76,6 +89,34 @@ function ResultsContent() {
       })
       .catch((e) => setError(String(e)))
       .finally(() => setLoading(false));
+  }, [lei, state, msa, years]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Fetch stratified data in background for Legal tab summary
+  useEffect(() => {
+    if (!lei || (!state && !msa)) return;
+    fetch(`/api/stratified?lei=${lei}&${geoParam}&years=${years}`)
+      .then((r) => r.json())
+      .then((d) => {
+        if (d.error) return;
+        const summary: ControlledDisparitySummary = {
+          significantInConventionalPurchase:
+            d.conventionalPurchase?.disparityRatios?.some(
+              (r: DisparityRatio) => r.chiSquare?.significant
+            ) ?? false,
+          cmhLoanTypeSignificant:
+            d.loanTypeCMH?.some((e: { cmh: { significant: boolean } }) => e.cmh.significant) ?? false,
+          cmhIncomeBandSignificant:
+            d.incomeBandCMH?.some((e: { cmh: { significant: boolean } }) => e.cmh.significant) ?? false,
+          incomeBandsAvailable: d.incomeBandsAvailable ?? false,
+          anyGroupUnderpowered:
+            d.powerAnalysis?.some(
+              (e: { mde: { adequateFor1_5: boolean } | null }) =>
+                e.mde && !e.mde.adequateFor1_5
+            ) ?? false,
+        };
+        setControlledDisparity(summary);
+      })
+      .catch(() => {});
   }, [lei, state, msa, years]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (!lei || (!state && !msa)) {
@@ -201,6 +242,30 @@ function ResultsContent() {
               )}
             </div>
 
+            {/* Tab: Controls (stratified analysis + data quality) */}
+            <div className={activeTab === "controls" ? "space-y-16" : "hidden print:block print:space-y-16"}>
+              <StratifiedAnalysis
+                lei={lei}
+                state={state || undefined}
+                msa={msa || undefined}
+                years={years}
+                lenderName={name}
+                geoLabel={geoLabel}
+                yearLabel={yearLabel}
+              />
+              <div className="border-t border-neutral-200 pt-10">
+                <DataQuality
+                  lei={lei}
+                  state={state || undefined}
+                  msa={msa || undefined}
+                  years={years}
+                  lenderName={name}
+                  geoLabel={geoLabel}
+                  yearLabel={yearLabel}
+                />
+              </div>
+            </div>
+
             {/* Tab: Legal */}
             <div className={activeTab === "legal" ? "" : "hidden print:block"}>
               <LegalAnalysis
@@ -213,6 +278,7 @@ function ResultsContent() {
                 lei={lei}
                 years={years}
                 yearLabel={yearLabel}
+                controlledDisparity={controlledDisparity}
               />
             </div>
           </>

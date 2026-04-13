@@ -16,7 +16,7 @@ interface TrendYear {
 
 interface EvidenceItem {
   label: string;
-  status: "supported" | "not_supported" | "requires_discovery";
+  status: "supported" | "not_supported" | "requires_discovery" | "partial";
   detail: string;
   legalElement: string;
 }
@@ -30,6 +30,20 @@ interface CauseOfAction {
   matchingCases: EnforcementCase[];
 }
 
+/** Minimal summary of controlled disparity from /api/stratified */
+interface ControlledDisparitySummary {
+  /** True if a statistically significant disparity (p<0.05) exists in conventional purchase loans */
+  significantInConventionalPurchase: boolean;
+  /** True if the CMH across loan type strata is significant (p<0.05) for any group */
+  cmhLoanTypeSignificant: boolean;
+  /** True if income-band data was available and CMH across income bands is significant */
+  cmhIncomeBandSignificant: boolean;
+  /** True if income-band data was available */
+  incomeBandsAvailable: boolean;
+  /** True if any group is underpowered (MDR > 1.5) */
+  anyGroupUnderpowered: boolean;
+}
+
 interface Props {
   disparityRatios: DisparityRatio[];
   marketRatios: DisparityRatio[];
@@ -40,16 +54,20 @@ interface Props {
   lei: string;
   years: string;
   yearLabel: string;
+  /** Optional pre-computed controlled disparity summary (from Controls tab data) */
+  controlledDisparity?: ControlledDisparitySummary | null;
 }
 
 function buildEvidenceItems(
   disparityRatios: DisparityRatio[],
   marketRatios: DisparityRatio[],
   trends: TrendYear[],
-  geoGap: number | null
+  geoGap: number | null,
+  controlled: ControlledDisparitySummary | null | undefined
 ): EvidenceItem[] {
   const worst = disparityRatios[0];
   const hasDisparity = worst && worst.ratio >= 1.5;
+  const hasSignificantDisparity = hasDisparity && (worst.chiSquare?.significant ?? false);
 
   const isOutlier = disparityRatios.some((lr) => {
     const mr = marketRatios.find((m) => m.group === lr.group);
@@ -63,12 +81,51 @@ function buildEvidenceItems(
 
   const hasGeoGap = geoGap !== null && geoGap < -5;
 
+  // Controlled disparity evidence
+  const hasControlledEvidence =
+    controlled != null &&
+    (controlled.significantInConventionalPurchase ||
+      controlled.cmhLoanTypeSignificant ||
+      controlled.cmhIncomeBandSignificant);
+
+  const controlledDetail = (() => {
+    if (!controlled) return "Run Controls tab to compute";
+    const parts: string[] = [];
+    if (controlled.significantInConventionalPurchase)
+      parts.push("significant in conventional purchase loans");
+    if (controlled.cmhLoanTypeSignificant)
+      parts.push("CMH significant across loan-type strata");
+    if (controlled.cmhIncomeBandSignificant)
+      parts.push("CMH significant across income bands");
+    if (parts.length === 0) {
+      if (controlled.anyGroupUnderpowered)
+        return "Not detected — sample may be underpowered (see Controls tab)";
+      return "No significant disparity after controlling for loan type";
+    }
+    return parts[0].charAt(0).toUpperCase() + parts[0].slice(1) +
+      (parts.length > 1 ? "; " + parts.slice(1).join("; ") : "");
+  })();
+
+  // Creditworthiness: partial if we have loan-type + income controls
+  const creditworthinessStatus: EvidenceItem["status"] =
+    controlled != null && (controlled.cmhLoanTypeSignificant || controlled.incomeBandsAvailable)
+      ? "partial"
+      : "requires_discovery";
+
+  const creditworthinessDetail =
+    controlled != null && controlled.incomeBandsAvailable
+      ? "Loan type and income band controlled (public HMDA). Credit score, exact DTI, LTV require discovery."
+      : controlled != null
+      ? "Loan type controlled (public HMDA). Income band, credit score, DTI, LTV require discovery."
+      : "Credit score, DTI, LTV not available in public HMDA data";
+
   return [
     {
       label: "Statistical disparity in denial rates",
       status: hasDisparity ? "supported" : "not_supported",
       detail: worst
-        ? `Highest ratio: ${worst.ratio.toFixed(2)}x (${worst.label} vs. White)`
+        ? `Highest ratio: ${worst.ratio.toFixed(2)}x (${worst.label} vs. White)` +
+          (hasSignificantDisparity ? ` — p${worst.chiSquare && worst.chiSquare.pValue < 0.001 ? "<0.001" : worst.chiSquare ? "=" + worst.chiSquare.pValue.toFixed(3) : ""}` : "")
         : "No significant disparity detected",
       legalElement: "Prima facie disparate impact (FHA \u00a7 3605)",
     },
@@ -96,10 +153,16 @@ function buildEvidenceItems(
       legalElement: "Redlining pattern (FHA \u00a7 3604)",
     },
     {
-      label: "Creditworthiness controls",
-      status: "requires_discovery",
-      detail: "Credit score, DTI, LTV not available in public HMDA data",
-      legalElement: "Requires litigation discovery (FRCP Rules 26/34)",
+      label: "Disparity persists after controlling for loan type and income",
+      status: controlled == null ? "requires_discovery" : hasControlledEvidence ? "supported" : "not_supported",
+      detail: controlledDetail,
+      legalElement: "Critical for surviving summary judgment (CMH test, Controls tab)",
+    },
+    {
+      label: "Creditworthiness controls (available variables)",
+      status: creditworthinessStatus,
+      detail: creditworthinessDetail,
+      legalElement: "Partial controls applied; credit score / DTI / LTV via FRCP Rules 26/34",
     },
     {
       label: "Matched pairs analysis",
@@ -166,6 +229,8 @@ function buildCausesOfAction(
   const isOutlier = evidence[1].status === "supported";
   const isPersistent = evidence[2].status === "supported";
   const hasGeoGap = evidence[3].status === "supported";
+  const hasControlledEvidence = evidence[4].status === "supported";
+  const hasCreditworthinessControls = evidence[5].status === "partial";
 
   const causes: CauseOfAction[] = [];
 
@@ -175,12 +240,13 @@ function buildCausesOfAction(
       statute: "Fair Housing Act \u00a7 3605",
       description:
         "Statistical evidence of racial disparities in lending outcomes can establish prima facie liability without proof of discriminatory intent.",
-      evidenceSupport: isOutlier || isPersistent ? "strong" : "partial",
+      evidenceSupport: (isOutlier || isPersistent) && hasControlledEvidence ? "strong" : isOutlier || isPersistent ? "partial" : "partial",
       elements: [
         { label: "Statistical disparity established", met: true },
         { label: "Disparity exceeds peer norms", met: isOutlier },
         { label: "Pattern is persistent over time", met: isPersistent },
-        { label: "Creditworthiness controls (requires discovery)", met: false },
+        { label: "Persists after controlling for loan type/income", met: hasControlledEvidence },
+        { label: "Credit score / DTI / LTV controls (requires discovery)", met: hasCreditworthinessControls },
       ],
       matchingCases: matchDisparateImpactCases(worstRatio),
     });
@@ -197,7 +263,8 @@ function buildCausesOfAction(
         { label: "Disparity in credit decisions", met: hasDisparity },
         { label: "Pattern beyond market norms", met: isOutlier },
         { label: "Multi-year persistence", met: isPersistent },
-        { label: "Creditworthiness controls (requires discovery)", met: false },
+        { label: "Persists after controlling for loan type/income", met: hasControlledEvidence },
+        { label: "Credit score / DTI / LTV controls (requires discovery)", met: hasCreditworthinessControls },
       ],
       matchingCases: matchDisparateImpactCases(worstRatio),
     });
@@ -239,6 +306,7 @@ export default function LegalAnalysis({
   lei,
   years,
   yearLabel,
+  controlledDisparity,
 }: Props) {
   const [geoGap, setGeoGap] = useState<number | null>(null);
   const [lenderMmPct, setLenderMmPct] = useState<number | null>(null);
@@ -259,11 +327,14 @@ export default function LegalAnalysis({
       .catch(() => {});
   }, [lei, state, years]);
 
-  const evidence = buildEvidenceItems(disparityRatios, marketRatios, trends, geoGap);
+  const evidence = buildEvidenceItems(disparityRatios, marketRatios, trends, geoGap, controlledDisparity);
   const worstRatio = disparityRatios.length > 0 ? disparityRatios[0].ratio : 0;
   const causesOfAction = buildCausesOfAction(evidence, worstRatio, lenderMmPct, marketMmPct);
   const summary = getEnforcementSummary();
   const supportedCount = evidence.filter((e) => e.status === "supported").length;
+  const partialCount = evidence.filter((e) => e.status === "partial").length;
+  // Count of the 5 primary screening elements (excluding the two always-discovery items)
+  const screeningTotal = 5;
 
   return (
     <div className="space-y-6">
@@ -285,6 +356,8 @@ export default function LegalAnalysis({
               <span className="mt-0.5 text-base">
                 {item.status === "supported"
                   ? "\u2705"
+                  : item.status === "partial"
+                  ? "\uD83D\uDFE1"
                   : item.status === "requires_discovery"
                   ? "\u26A0\uFE0F"
                   : "\u274C"}
@@ -304,10 +377,16 @@ export default function LegalAnalysis({
 
         <div className="mt-4 pt-3 border-t border-neutral-200">
           <p className="text-xs text-neutral-500">
-            {supportedCount} of 4 screening elements supported by available data.
-            {supportedCount >= 2
+            {supportedCount} of {screeningTotal} primary screening elements supported
+            {partialCount > 0 ? `, ${partialCount} partially controlled` : ""}.
+            {supportedCount >= 3
               ? " This level of evidence typically warrants further investigation."
+              : supportedCount >= 2
+              ? " This level of evidence may support filing with additional expert analysis."
               : " Additional evidence may be needed to support a claim."}
+            {controlledDisparity == null && (
+              <> Run the <strong>Controls</strong> tab to compute CMH-adjusted statistics.</>
+            )}
           </p>
         </div>
       </div>
