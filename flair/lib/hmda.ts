@@ -120,7 +120,9 @@ export const LOAN_TYPE_LABELS: Record<string, string> = {
 export const LOAN_PURPOSES = {
   PURCHASE: "1",
   HOME_IMPROVEMENT: "2",
+  /** Refinancing — rate/term (HMDA uses code 31 to distinguish from cash-out) */
   REFINANCE: "31",
+  /** Cash-out refinancing (separate HMDA code 32, distinct underwriting profile) */
   CASH_OUT_REFINANCE: "32",
   OTHER: "4",
 } as const;

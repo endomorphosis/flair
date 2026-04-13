@@ -235,12 +235,16 @@ function buildCausesOfAction(
   const causes: CauseOfAction[] = [];
 
   if (hasDisparity) {
+    function disparateImpactSupport(): "strong" | "partial" | "insufficient" {
+      if ((isOutlier || isPersistent) && hasControlledEvidence) return "strong";
+      return "partial";
+    }
     causes.push({
       name: "Disparate Impact",
       statute: "Fair Housing Act \u00a7 3605",
       description:
         "Statistical evidence of racial disparities in lending outcomes can establish prima facie liability without proof of discriminatory intent.",
-      evidenceSupport: (isOutlier || isPersistent) && hasControlledEvidence ? "strong" : isOutlier || isPersistent ? "partial" : "partial",
+      evidenceSupport: disparateImpactSupport(),
       elements: [
         { label: "Statistical disparity established", met: true },
         { label: "Disparity exceeds peer norms", met: isOutlier },

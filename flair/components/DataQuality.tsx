@@ -2,6 +2,11 @@
 
 import { useEffect, useState } from "react";
 
+// ── Constants ─────────────────────────────────────────────────────────────────
+
+/** Ratio of minority attrition rate to White attrition rate above which we flag the group */
+const MIN_ATTRITION_THRESHOLD_RATIO = 1.2;
+
 // ── Types returned by /api/quality ────────────────────────────────────────────
 
 interface RaceLoanTypeSplit {
@@ -250,7 +255,7 @@ export default function DataQuality({
             <tbody>
               {withdrawalStats.map((row) => {
                 const whiteAttrition = withdrawalStats.find((r) => r.race === "White")?.attritionRate ?? 0;
-                const isHigh = row.race !== "White" && row.attritionRate > whiteAttrition * 1.2;
+                const isHigh = row.race !== "White" && row.attritionRate > whiteAttrition * MIN_ATTRITION_THRESHOLD_RATIO;
                 return (
                   <tr key={row.race} className="border-b border-neutral-100">
                     <td className="py-3 pr-4 text-sm text-[#111]">{row.label}</td>

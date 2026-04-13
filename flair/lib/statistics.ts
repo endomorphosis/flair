@@ -52,8 +52,11 @@ export function chiSquareSF(x: number, df: number): number {
 
 // ─── Confidence interval for a disparity ratio ───────────────────────────────
 
+/** Two-sided confidence interval for a disparity ratio (lower and upper bounds). */
 export interface ConfidenceInterval {
+  /** Lower bound of the confidence interval for the disparity ratio */
   lower: number;
+  /** Upper bound of the confidence interval for the disparity ratio */
   upper: number;
 }
 
@@ -284,8 +287,8 @@ export function minimumDetectableRatio(
   };
   if (nMinority < 5 || nWhite < 5 || p0 <= 0 || p0 >= 1) return sentinel;
 
-  const z_alpha = 1.96; // 95% CI two-sided
-  const z_beta = 0.842; // 80% power
+  const z_alpha = 1.96; // 95% CI two-sided (α=0.05)
+  const z_beta = 0.842; // 80% power (20% Type II error rate, 80th percentile of N(0,1))
   const q0 = 1 - p0;
   const delta = (z_alpha + z_beta) * Math.sqrt(p0 * q0 * (1 / nMinority + 1 / nWhite));
   const p1_min = p0 + delta;

@@ -89,7 +89,7 @@ function ResultsContent() {
       })
       .catch((e) => setError(String(e)))
       .finally(() => setLoading(false));
-  }, [lei, state, msa, years]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [lei, state, msa, years]); // eslint-disable-line react-hooks/exhaustive-deps -- geoParam is derived from state/msa; including it would duplicate the dependency
 
   // Fetch stratified data in background for Legal tab summary
   useEffect(() => {
@@ -117,7 +117,7 @@ function ResultsContent() {
         setControlledDisparity(summary);
       })
       .catch(() => {});
-  }, [lei, state, msa, years]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [lei, state, msa, years]); // eslint-disable-line react-hooks/exhaustive-deps -- geoParam is derived from state/msa; including it would duplicate the dependency
 
   if (!lei || (!state && !msa)) {
     return (
