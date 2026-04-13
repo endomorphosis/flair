@@ -38,7 +38,8 @@ interface Props {
   geoLabel: string;
   state: string;
   lei: string;
-  year: number;
+  years: string;
+  yearLabel: string;
 }
 
 function buildEvidenceItems(
@@ -236,7 +237,8 @@ export default function LegalAnalysis({
   geoLabel,
   state,
   lei,
-  year,
+  years,
+  yearLabel,
 }: Props) {
   const [geoGap, setGeoGap] = useState<number | null>(null);
   const [lenderMmPct, setLenderMmPct] = useState<number | null>(null);
@@ -245,7 +247,7 @@ export default function LegalAnalysis({
 
   useEffect(() => {
     if (!state) return;
-    fetch(`/api/geographic?lei=${lei}&state=${state}&year=${year}`)
+    fetch(`/api/geographic?lei=${lei}&state=${state}&years=${years}`)
       .then((r) => r.json())
       .then((d) => {
         if (!d.error) {
@@ -255,7 +257,7 @@ export default function LegalAnalysis({
         }
       })
       .catch(() => {});
-  }, [lei, state, year]);
+  }, [lei, state, years]);
 
   const evidence = buildEvidenceItems(disparityRatios, marketRatios, trends, geoGap);
   const worstRatio = disparityRatios.length > 0 ? disparityRatios[0].ratio : 0;
@@ -271,7 +273,7 @@ export default function LegalAnalysis({
           Evidence Assessment
         </h3>
         <p className="text-xs text-neutral-500 mb-4">
-          What FLAIR&apos;s analysis establishes for {lenderName} in {geoLabel} ({year})
+          What FLAIR&apos;s analysis establishes for {lenderName} in {geoLabel} ({yearLabel})
         </p>
 
         <div className="space-y-3">

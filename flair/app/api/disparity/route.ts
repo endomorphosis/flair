@@ -1,13 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDisparityData, getEthnicityData } from "@/lib/hmda";
 import { computeDenialRates, computeDisparityRatios, mergeRaceAndEthnicity } from "@/lib/computations";
-import { DEFAULT_YEAR } from "@/lib/constants";
 
 export async function GET(req: NextRequest) {
   const lei = req.nextUrl.searchParams.get("lei");
   const state = req.nextUrl.searchParams.get("state") || undefined;
   const msa = req.nextUrl.searchParams.get("msa") || undefined;
-  const year = parseInt(req.nextUrl.searchParams.get("year") || String(DEFAULT_YEAR));
+  const years = req.nextUrl.searchParams.get("years") || req.nextUrl.searchParams.get("year") || "2023";
 
   if (!lei || (!state && !msa)) {
     return NextResponse.json({ error: "lei and either state or msa are required" }, { status: 400 });
@@ -15,8 +14,8 @@ export async function GET(req: NextRequest) {
 
   try {
     const [raceData, ethnicityData] = await Promise.all([
-      getDisparityData(lei, year, state, msa),
-      getEthnicityData(lei, year, state, msa),
+      getDisparityData(lei, years, state, msa),
+      getEthnicityData(lei, years, state, msa),
     ]);
 
     const raceDenials = computeDenialRates(raceData);
@@ -27,7 +26,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({
       denialRates: allDenials,
       disparityRatios: ratios,
-      year,
+      years,
       state,
       msa,
       lei,

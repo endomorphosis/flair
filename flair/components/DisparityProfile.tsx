@@ -6,7 +6,7 @@ interface Props {
   ratios: DisparityRatio[];
   lenderName: string;
   state: string;
-  year: number;
+  yearLabel: string;
 }
 
 function ratioColor(ratio: number): string {
@@ -37,7 +37,7 @@ function getEnforcementContext(ratio: number): EnforcementCase[] {
   return DOJ_CASES.filter((c) => c.ratio <= ratio).sort((a, b) => b.ratio - a.ratio);
 }
 
-export default function DisparityProfile({ ratios, lenderName, state, year }: Props) {
+export default function DisparityProfile({ ratios, lenderName, state, yearLabel }: Props) {
   if (ratios.length === 0) {
     return (
       <p className="text-sm text-neutral-400 py-8">
@@ -64,7 +64,7 @@ export default function DisparityProfile({ ratios, lenderName, state, year }: Pr
           <strong>{worst.label}</strong> applicants at{" "}
           <strong>{lenderName}</strong> in {state} were denied at{" "}
           <strong>{worst.ratio.toFixed(1)}x</strong> the rate of White applicants
-          in {year}.
+          in {yearLabel}.
         </p>
         <div className="flex gap-6 mt-3 text-[13px] text-neutral-500">
           <span>{worst.label}: {(worst.denialRate * 100).toFixed(1)}%</span>

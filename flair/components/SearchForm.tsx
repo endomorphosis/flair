@@ -16,7 +16,8 @@ export default function SearchForm() {
   const [query, setQuery] = useState("");
   const [state, setState] = useState("CA");
   const [msa, setMsa] = useState("");
-  const [year, setYear] = useState(DEFAULT_YEAR);
+  const [yearFrom, setYearFrom] = useState(DEFAULT_YEAR);
+  const [yearTo, setYearTo] = useState(DEFAULT_YEAR);
   const [lenders, setLenders] = useState<Lender[]>([]);
   const [loading, setLoading] = useState(false);
   const [searched, setSearched] = useState(false);
@@ -35,7 +36,7 @@ export default function SearchForm() {
     setSearched(false);
     try {
       const res = await fetch(
-        `/api/lenders?q=${encodeURIComponent(query)}&year=${year}`
+        `/api/lenders?q=${encodeURIComponent(query)}&year=${yearTo}`
       );
       const data = await res.json();
       setLenders(data.lenders || []);
@@ -49,11 +50,16 @@ export default function SearchForm() {
   }
 
   function selectLender(lender: Lender) {
+    // Build comma-separated years string
+    const yearsArr: number[] = [];
+    for (let y = yearFrom; y <= yearTo; y++) {
+      if (AVAILABLE_YEARS.includes(y)) yearsArr.push(y);
+    }
     const params = new URLSearchParams({
       lei: lender.lei,
       name: lender.name,
       state,
-      year: String(year),
+      years: yearsArr.join(","),
     });
     if (msa) {
       params.set("msa", msa);
@@ -85,7 +91,7 @@ export default function SearchForm() {
           />
         </div>
 
-        <div className="grid grid-cols-2 gap-8">
+        <div className="grid grid-cols-3 gap-8">
           <div>
             <label htmlFor="state" className="block text-[11px] font-medium tracking-wide text-neutral-500 uppercase mb-1">
               State
@@ -106,19 +112,40 @@ export default function SearchForm() {
             </select>
           </div>
           <div>
-            <label htmlFor="year" className="block text-[11px] font-medium tracking-wide text-neutral-500 uppercase mb-1">
-              Year
+            <label htmlFor="yearFrom" className="block text-[11px] font-medium tracking-wide text-neutral-500 uppercase mb-1">
+              From
             </label>
             <select
-              id="year"
-              value={year}
-              onChange={(e) => setYear(Number(e.target.value))}
+              id="yearFrom"
+              value={yearFrom}
+              onChange={(e) => {
+                const v = Number(e.target.value);
+                setYearFrom(v);
+                if (v > yearTo) setYearTo(v);
+              }}
               className={selectClass}
             >
               {AVAILABLE_YEARS.slice().reverse().map((y) => (
-                <option key={y} value={y}>
-                  {y}
-                </option>
+                <option key={y} value={y}>{y}</option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label htmlFor="yearTo" className="block text-[11px] font-medium tracking-wide text-neutral-500 uppercase mb-1">
+              To
+            </label>
+            <select
+              id="yearTo"
+              value={yearTo}
+              onChange={(e) => {
+                const v = Number(e.target.value);
+                setYearTo(v);
+                if (v < yearFrom) setYearFrom(v);
+              }}
+              className={selectClass}
+            >
+              {AVAILABLE_YEARS.slice().reverse().map((y) => (
+                <option key={y} value={y}>{y}</option>
               ))}
             </select>
           </div>
@@ -156,7 +183,7 @@ export default function SearchForm() {
 
       {searched && lenders.length === 0 && (
         <p className="mt-8 text-center text-sm text-neutral-400">
-          No lenders found matching &ldquo;{query}&rdquo; for {year}.
+          No lenders found matching &ldquo;{query}&rdquo; for {yearTo}.
         </p>
       )}
 

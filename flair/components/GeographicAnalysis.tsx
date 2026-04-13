@@ -38,18 +38,19 @@ interface GeographicData {
 interface Props {
   lei: string;
   state: string;
-  year: number;
+  years: string;
   lenderName: string;
   geoLabel: string;
+  yearLabel: string;
 }
 
-export default function GeographicAnalysis({ lei, state, year, lenderName, geoLabel }: Props) {
+export default function GeographicAnalysis({ lei, state, years, lenderName, geoLabel, yearLabel }: Props) {
   const [data, setData] = useState<GeographicData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch(`/api/geographic?lei=${lei}&state=${state}&year=${year}`)
+    fetch(`/api/geographic?lei=${lei}&state=${state}&years=${years}`)
       .then((r) => r.json())
       .then((d) => {
         if (d.error) setError(d.error);
@@ -57,7 +58,7 @@ export default function GeographicAnalysis({ lei, state, year, lenderName, geoLa
       })
       .catch((e) => setError(String(e)))
       .finally(() => setLoading(false));
-  }, [lei, state, year]);
+  }, [lei, state, years]);
 
   if (loading) {
     return (
@@ -109,7 +110,7 @@ export default function GeographicAnalysis({ lei, state, year, lenderName, geoLa
       </p>
       <p className="text-[13px] text-neutral-400 mb-8">
         Application distribution across majority-minority vs. majority-White
-        counties in {geoLabel} ({year})
+        counties in {geoLabel} ({yearLabel})
       </p>
 
       {/* Headline comparison */}

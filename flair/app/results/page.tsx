@@ -38,7 +38,13 @@ function ResultsContent() {
   const state = searchParams.get("state") || "";
   const msa = searchParams.get("msa") || "";
   const msaName = searchParams.get("msaName") || "";
-  const year = parseInt(searchParams.get("year") || "2023");
+  const years = searchParams.get("years") || searchParams.get("year") || "2023";
+
+  // Display label: "2023" or "2021-2024"
+  const yearsList = years.split(",").map(Number);
+  const yearLabel = yearsList.length > 1
+    ? `${yearsList[0]}-${yearsList[yearsList.length - 1]}`
+    : String(yearsList[0]);
 
   const geoLabel = msaName || US_STATES[state] || state;
   const geoParam = msa ? `msa=${msa}` : `state=${state}`;
@@ -57,10 +63,10 @@ function ResultsContent() {
     setError(null);
 
     Promise.all([
-      fetch(`/api/disparity?lei=${lei}&${geoParam}&year=${year}`).then((r) =>
+      fetch(`/api/disparity?lei=${lei}&${geoParam}&years=${years}`).then((r) =>
         r.json()
       ),
-      fetch(`/api/peers?${geoParam}&year=${year}`).then((r) => r.json()),
+      fetch(`/api/peers?${geoParam}&years=${years}`).then((r) => r.json()),
       fetch(`/api/trends?lei=${lei}&${geoParam}`).then((r) => r.json()),
     ])
       .then(([disparityData, peersData, trendsData]) => {
@@ -70,7 +76,7 @@ function ResultsContent() {
       })
       .catch((e) => setError(String(e)))
       .finally(() => setLoading(false));
-  }, [lei, state, msa, year]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [lei, state, msa, years]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (!lei || (!state && !msa)) {
     return (
@@ -89,7 +95,7 @@ function ResultsContent() {
             <div>
               <h1 className="text-lg font-semibold tracking-tight">{name}</h1>
               <p className="text-neutral-500 text-[13px] mt-0.5">
-                {geoLabel} &middot; {year}
+                {geoLabel} &middot; {yearLabel}
                 {disparity && (
                   <> &middot; {disparity.denialRates.reduce((s, r) => s + r.applications, 0).toLocaleString()} applications</>
                 )}
@@ -150,11 +156,11 @@ function ResultsContent() {
                 ratios={disparity.disparityRatios}
                 lenderName={name}
                 state={geoLabel}
-                year={year}
+                yearLabel={yearLabel}
               />
               <DenialRateChart
                 data={disparity.denialRates}
-                title={`Denial Rates by Race — ${year}`}
+                title={`Denial Rates by Race — ${yearLabel}`}
               />
             </div>
 
@@ -183,9 +189,10 @@ function ResultsContent() {
                 <GeographicAnalysis
                   lei={lei}
                   state={state}
-                  year={year}
+                  years={years}
                   lenderName={name}
                   geoLabel={geoLabel}
+                  yearLabel={yearLabel}
                 />
               ) : (
                 <p className="text-sm text-neutral-400 py-8">
@@ -204,7 +211,8 @@ function ResultsContent() {
                 geoLabel={geoLabel}
                 state={state}
                 lei={lei}
-                year={year}
+                years={years}
+                yearLabel={yearLabel}
               />
             </div>
           </>

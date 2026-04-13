@@ -19,8 +19,8 @@ export async function GET(req: NextRequest) {
       years.map(async (year) => {
         try {
           const [raceData, ethnicityData] = await Promise.all([
-            getDisparityData(lei, year, state, msa),
-            getEthnicityData(lei, year, state, msa),
+            getDisparityData(lei, String(year), state, msa),
+            getEthnicityData(lei, String(year), state, msa),
           ]);
           const raceDenials = computeDenialRates(raceData);
           const ethnicityDenials = computeDenialRates(ethnicityData);

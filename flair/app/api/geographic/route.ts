@@ -11,13 +11,13 @@ interface CountyGroupCounts {
 
 async function getApplicationCounts(
   counties: string[],
-  year: number,
+  years: string,
   lei?: string
 ): Promise<CountyGroupCounts> {
   if (counties.length === 0) return { applications: 0, originations: 0, denials: 0 };
 
   const countyParam = counties.join(",");
-  let url = `${HMDA_BASE}/v2/data-browser-api/view/aggregations?counties=${countyParam}&years=${year}&actions_taken=${ACTION_ORIGINATED},${ACTION_DENIED}`;
+  let url = `${HMDA_BASE}/v2/data-browser-api/view/aggregations?counties=${countyParam}&years=${years}&actions_taken=${ACTION_ORIGINATED},${ACTION_DENIED}`;
   if (lei) url += `&leis=${lei}`;
 
   const res = await fetch(url);
@@ -38,7 +38,7 @@ async function getApplicationCounts(
 export async function GET(req: NextRequest) {
   const lei = req.nextUrl.searchParams.get("lei");
   const state = req.nextUrl.searchParams.get("state");
-  const year = parseInt(req.nextUrl.searchParams.get("year") || String(DEFAULT_YEAR));
+  const years = req.nextUrl.searchParams.get("years") || req.nextUrl.searchParams.get("year") || String(DEFAULT_YEAR);
 
   if (!lei || !state) {
     return NextResponse.json({ error: "lei and state are required" }, { status: 400 });
@@ -50,10 +50,10 @@ export async function GET(req: NextRequest) {
 
     // 2. Query HMDA for lender's applications in each group
     const [lenderMM, lenderMW, marketMM, marketMW] = await Promise.all([
-      getApplicationCounts(counties.majorityMinorityFips, year, lei),
-      getApplicationCounts(counties.majorityWhiteFips, year, lei),
-      getApplicationCounts(counties.majorityMinorityFips, year),
-      getApplicationCounts(counties.majorityWhiteFips, year),
+      getApplicationCounts(counties.majorityMinorityFips, years, lei),
+      getApplicationCounts(counties.majorityWhiteFips, years, lei),
+      getApplicationCounts(counties.majorityMinorityFips, years),
+      getApplicationCounts(counties.majorityWhiteFips, years),
     ]);
 
     const lenderTotal = lenderMM.applications + lenderMW.applications;
@@ -86,7 +86,7 @@ export async function GET(req: NextRequest) {
         majorityWhiteCount: counties.majorityWhite.length,
         totalCounties: counties.majorityMinority.length + counties.majorityWhite.length,
       },
-      year,
+      years,
       state,
     });
   } catch (e) {
