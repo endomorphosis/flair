@@ -255,7 +255,7 @@ function buildGroupFeatures(
     // Overall denial rate
     f["denial_rate"] = n > 0 ? overall.denials / n : 0;
 
-    // Log-applications (size control) — normalised relative to largest group
+    // Log-applications (size control) — log(n+1) to reduce leverage of very large groups
     f["log_applications"] = Math.log(n + 1);
 
     // Loan type shares and within-type denial rates
@@ -278,7 +278,7 @@ function buildGroupFeatures(
       for (const [, v] of lpMap ?? []) lpTotal += v.denials + v.originations;
       for (const [code, label] of Object.entries(LOAN_PURPOSE_LABELS)) {
         const v = lpMap?.get(code) ?? { denials: 0, originations: 0 };
-        const slug = label.toLowerCase().replace(/[^a-z]/g, "_");
+        const slug = label.toLowerCase().replace(/[\s\-\/]+/g, "_").replace(/[^a-z0-9_]/g, "");
         f[`share_${slug}`] = lpTotal > 0 ? (v.denials + v.originations) / lpTotal : 0;
       }
     }

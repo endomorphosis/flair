@@ -288,7 +288,7 @@ export function minimumDetectableRatio(
   if (nMinority < 5 || nWhite < 5 || p0 <= 0 || p0 >= 1) return sentinel;
 
   const z_alpha = 1.96; // 95% CI two-sided (α=0.05)
-  const z_beta = 0.842; // 80% power (20% Type II error rate, 80th percentile of N(0,1))
+  const z_beta = 0.842; // z_β: P(Z ≤ z_β) = 0.80 (80% power, i.e. 20% Type II error rate)
   const q0 = 1 - p0;
   const delta = (z_alpha + z_beta) * Math.sqrt(p0 * q0 * (1 / nMinority + 1 / nWhite));
   const p1_min = p0 + delta;

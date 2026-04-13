@@ -23,9 +23,10 @@ function identity(n: number): Matrix {
 // ─── Standardisation ──────────────────────────────────────────────────────────
 
 /**
- * Standardise each column of X to zero mean and unit variance (population
- * sample std, denominator n-1).  Constant columns (std ≈ 0) are left on their
- * mean without scaling so they don't blow up the covariance matrix.
+ * Standardise each column of X to zero mean and unit variance (sample
+ * standard deviation, denominator n−1).  Constant columns (std ≈ 0) are
+ * left on their mean without scaling so they don't blow up the covariance
+ * matrix.
  */
 function standardise(X: Matrix): {
   Z: Matrix;

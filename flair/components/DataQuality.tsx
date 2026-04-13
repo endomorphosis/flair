@@ -285,7 +285,7 @@ export default function DataQuality({
         )}
         <p className="text-[11px] text-neutral-400 mt-2">
           Attrition rate = (withdrawn + incomplete) ÷ all submitted applications.
-          Flagged (⚠) when a group&apos;s rate exceeds the White rate by ≥20%.
+          Flagged (⚠) when a group&apos;s rate exceeds the White rate by ≥{Math.round((MIN_ATTRITION_THRESHOLD_RATIO - 1) * 100)}%.
         </p>
       </div>
 

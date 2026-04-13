@@ -46,8 +46,6 @@ function loadingColor(v: number): string {
 function prettifyFeature(key: string): string {
   return key
     .replace(/_/g, " ")
-    .replace(/\brate\b/, "rate")
-    .replace(/\bshare\b/, "share")
     .replace(/^./, (c) => c.toUpperCase());
 }
 
@@ -225,7 +223,7 @@ function LoadingHeatmap({
                           color: Math.abs(v) > 0.4 ? "white" : "#374151",
                         }}
                       >
-                        {v >= 0 ? "+" : ""}{v.toFixed(2)}
+                        {v >= 0 ? "+" : ""}{Math.abs(v) < 0.005 ? v.toFixed(3) : v.toFixed(2)}
                       </span>
                     </td>
                   );
