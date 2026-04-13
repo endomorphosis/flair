@@ -22,11 +22,14 @@ export default function AboutPage() {
             The tools to find them aren&apos;t.
           </h1>
           <p className="text-neutral-400 text-base leading-relaxed max-w-xl">
-            Every year, ~5,000 lenders report mortgage data to the federal
-            government. Hundreds have statistically significant racial
-            disparities. But only the DOJ and CFPB had the tools to screen
-            for them — and enforcement has fallen sharply since Executive
-            Order 14281 deprioritized disparate impact cases in February 2025.
+            The Fair Housing Act and ECOA guarantee every borrower the right
+            to be evaluated on their creditworthiness — not their race or the
+            racial composition of their neighborhood. Every year, ~5,000
+            lenders report mortgage data to the federal government. Hundreds
+            have statistically significant racial disparities. But only the
+            DOJ and CFPB had the tools to screen for them — and enforcement
+            has fallen sharply since Executive Order 14281 deprioritized
+            disparate impact cases in February 2025.
           </p>
         </div>
       </div>
@@ -60,7 +63,7 @@ export default function AboutPage() {
               { value: "Hundreds", label: "With statistically significant disparities", pct: 70 },
               { value: "~30,000", label: "Fair housing complaints filed/year", pct: 50 },
               { value: "~2,500", label: "Lending-related complaints", pct: 35 },
-              { value: "~50–100", label: "Formal DOJ/CFPB investigations/year", pct: 20 },
+              { value: "~50\u2013100", label: "Formal DOJ/CFPB investigations/year", pct: 20 },
               { value: String(summary.totalCases), label: "Public settlements (last decade)", pct: 10 },
             ].map((step, i) => (
               <div key={i} className="flex items-center gap-4">
@@ -75,14 +78,54 @@ export default function AboutPage() {
             ))}
           </div>
           <p className="text-[13px] text-neutral-500 mt-8 max-w-md leading-relaxed">
-            The bottleneck isn&apos;t the problem — it&apos;s the
-            capacity to investigate. FLAIR puts the same screening power
-            federal regulators use into the hands of every legal aid
-            organization in the country.
+            The bottleneck isn&apos;t the law — it&apos;s the capacity to
+            screen. FLAIR occupies the same position in the enforcement
+            pipeline as the Federal Reserve&apos;s outlier screening — the
+            triage step that decides whether a lender warrants investigation.
           </p>
         </section>
 
-        {/* Before / After — always side by side */}
+        {/* Statutory Rights */}
+        <section className="mb-20">
+          <p className="text-[11px] font-medium tracking-wide text-neutral-500 uppercase mb-6">
+            The Rights at Stake
+          </p>
+          <div className="space-y-6">
+            <div className="border-b border-neutral-200 pb-5">
+              <p className="text-sm font-semibold text-[#111] mb-1">
+                Fair Housing Act &sect; 3605
+              </p>
+              <p className="text-[13px] text-neutral-500 leading-relaxed">
+                Enacted in 1968, one week after the assassination of Martin
+                Luther King Jr. Section 3601 declares the policy of
+                &ldquo;fair housing throughout the United States.&rdquo;
+                Section 3605 makes it unlawful to discriminate in residential
+                real estate-related transactions — including mortgage
+                lending — on the basis of race, color, religion, sex,
+                national origin, disability, or familial status.
+              </p>
+            </div>
+            <div className="border-b border-neutral-200 pb-5">
+              <p className="text-sm font-semibold text-[#111] mb-1">
+                Equal Credit Opportunity Act &sect; 1691
+              </p>
+              <p className="text-[13px] text-neutral-500 leading-relaxed">
+                Enacted in 1974 and implemented through Regulation B
+                (12 C.F.R. &sect; 1002), ECOA prohibits discrimination in
+                any aspect of a credit transaction. It adds marital status
+                and age as protected classes and extends beyond housing to
+                all consumer credit.
+              </p>
+            </div>
+            <p className="text-[13px] text-neutral-700 leading-relaxed">
+              Together, these statutes guarantee every borrower the right to
+              be evaluated on their creditworthiness — not their race or the
+              racial composition of their neighborhood.
+            </p>
+          </div>
+        </section>
+
+        {/* Before / After */}
         <section className="mb-20">
           <p className="text-[11px] font-medium tracking-wide text-neutral-500 uppercase mb-6">
             Before and After
@@ -141,7 +184,7 @@ export default function AboutPage() {
           </div>
         </section>
 
-        {/* Causes of Action */}
+        {/* Causes of Action — expanded */}
         <section className="mb-20">
           <p className="text-[11px] font-medium tracking-wide text-neutral-500 uppercase mb-6">
             Causes of Action
@@ -157,11 +200,16 @@ export default function AboutPage() {
                 </p>
               </div>
               <p className="text-[13px] text-neutral-500 leading-relaxed">
-                Geographic pattern of avoiding majority-minority communities
-                in lending activity. The dominant theory in recent DOJ enforcement —
-                4 of the 5 most recent settlements are redlining cases. FLAIR
-                detects this by comparing a lender&apos;s application share in
-                majority-minority counties against the market average.
+                The lender systematically avoids lending in majority-minority
+                neighborhoods — not by explicitly refusing applications, but
+                by failing to market, place branches, or solicit business in
+                those communities. This is the dominant enforcement theory
+                today: 4 of the last 5 DOJ settlements are redlining cases,
+                all under the DOJ Combating Redlining Initiative launched in
+                October 2021. Evidence is marshalled by comparing the
+                lender&apos;s geographic lending distribution to peer lenders
+                in the same market — exactly what FLAIR&apos;s geographic
+                analysis produces.
               </p>
             </div>
             <div className="border-b border-neutral-200 pb-6">
@@ -174,36 +222,46 @@ export default function AboutPage() {
                 </p>
               </div>
               <p className="text-[13px] text-neutral-500 leading-relaxed">
-                Statistical evidence of racial disparities in lending outcomes
-                establishes prima facie liability without proof of discriminatory
-                intent. Under <em>Texas Dep&apos;t of Housing v. Inclusive
-                Communities</em> (2015), denial rate ratios and peer comparisons
-                are the type of evidence used in this analysis. FLAIR computes
-                both automatically.
+                A facially neutral policy — a credit overlay, minimum loan
+                amount, or pricing formula — that has a disproportionately
+                adverse effect on a protected class. The Supreme Court
+                confirmed this theory in{" "}
+                <em>Texas Dep&apos;t of Housing v. Inclusive
+                Communities</em> (576 U.S. 519, 2015) with a three-step
+                burden-shifting test: (1) plaintiff shows statistical
+                disparity caused by a specific policy, (2) defendant shows
+                legitimate business justification, (3) plaintiff shows a
+                less discriminatory alternative. FLAIR computes denial rate
+                ratios and peer comparisons — the evidentiary foundation for
+                step one.
               </p>
             </div>
             <div className="border-b border-neutral-200 pb-6">
               <div className="flex items-baseline justify-between mb-2">
                 <p className="text-sm font-semibold text-[#111]">
-                  ECOA Discrimination — 15 U.S.C. &sect; 1691
+                  Pricing Discrimination / Steering — ECOA &sect; 1691
                 </p>
                 <p className="text-[13px] tabular-nums text-neutral-500">
                   {pricingCases.length} cases
                 </p>
               </div>
               <p className="text-[13px] text-neutral-500 leading-relaxed">
-                Prohibits discrimination in any aspect of a credit transaction
-                on the basis of race, color, national origin, sex, marital status,
-                or age. Historically pursued through pricing discrimination
-                cases — minority borrowers charged higher rates than similarly
-                situated White borrowers. FLAIR&apos;s denial rate disparity
-                ratios provide the screening evidence.
+                The lender charges minority borrowers higher rates or steers
+                them into costlier products. This produced the two largest
+                fair lending settlements:{" "}
+                <em>DOJ v. Countrywide</em> ($335M, 2011) and{" "}
+                <em>DOJ v. Wells Fargo</em> ($175M, 2012). Evidence requires
+                regression analysis on internal loan files — obtained through
+                Civil Investigative Demands (government) or FRCP Rules 26/34
+                discovery (private plaintiffs). FLAIR flags the statistical
+                conditions that indicate pricing discrimination may be
+                occurring.
               </p>
             </div>
           </div>
         </section>
 
-        {/* How it works */}
+        {/* How it works — expanded */}
         <section className="mb-20">
           <p className="text-[11px] font-medium tracking-wide text-neutral-500 uppercase mb-6">
             How It Works
@@ -211,7 +269,7 @@ export default function AboutPage() {
           <div className="flex items-start gap-8 md:gap-12">
             {[
               { n: "1", title: "Search", desc: "Lender name + geography" },
-              { n: "2", title: "Analyze", desc: "Denial rates, peers, geography" },
+              { n: "2", title: "Analyze", desc: "Denial rates, peer comparison, geographic redlining detection" },
               { n: "3", title: "Map to Law", desc: "Evidence checklist + causes of action" },
               { n: "4", title: "Act", desc: "File HUD complaint, draft demand letter, refer to DOJ" },
             ].map((step) => (
@@ -225,6 +283,10 @@ export default function AboutPage() {
           <p className="text-[13px] text-neutral-400 mt-6">
             FLAIR provides the screening and evidence mapping (steps 1–3).
             Step 4 is the attorney&apos;s decision based on the findings.
+            FLAIR occupies the same position in the enforcement pipeline as
+            the Federal Reserve&apos;s outlier screening — the triage step
+            that replaces the $15,000–$50,000 consulting engagement that
+            decides whether to hire an expert witness.
           </p>
         </section>
 
