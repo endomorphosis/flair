@@ -30,7 +30,7 @@ export default function RootLayout({
         <NavBar />
         <div className="flex-1">{children}</div>
         <footer className="py-8 text-center text-[11px] tracking-wide text-neutral-400 print:hidden">
-          CFPB HMDA Data Browser &middot; U.S. Census ACS &middot; Stanford CodeX LLM x Law Hackathon
+          &copy; 2026 Anita Srinivasan
         </footer>
       </body>
     </html>
