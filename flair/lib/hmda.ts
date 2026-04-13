@@ -200,6 +200,27 @@ export async function getWithdrawalDataByRace(
 }
 
 /**
+ * Get loan purpose distribution cross-tabulated by race.
+ * Returns aggregations keyed by (race, loan_purpose, action_taken).
+ */
+export async function getLoanPurposeMixByRace(
+  lei: string,
+  years: string,
+  state?: string,
+  msa?: string,
+): Promise<AggregationResponse> {
+  const races = RACES.join(",");
+  const loanPurposes = Object.values(LOAN_PURPOSES).join(",");
+  const url =
+    `${HMDA_BASE}/v2/data-browser-api/view/aggregations?leis=${lei}&${geoParam(state, msa)}` +
+    `&years=${years}&actions_taken=${ACTION_ORIGINATED},${ACTION_DENIED}` +
+    `&races=${encodeURIComponent(races)}&loan_purposes=${loanPurposes}`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`Loan purpose mix API error: ${res.status}`);
+  return res.json();
+}
+
+/**
  * Get occupancy type distribution by race
  * (principal residence vs. second home vs. investment property).
  */

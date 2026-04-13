@@ -11,6 +11,7 @@ import LegalAnalysis from "@/components/LegalAnalysis";
 import GeographicAnalysis from "@/components/GeographicAnalysis";
 import StratifiedAnalysis from "@/components/StratifiedAnalysis";
 import DataQuality from "@/components/DataQuality";
+import PCAAnalysis from "@/components/PCAAnalysis";
 import { US_STATES } from "@/lib/constants";
 
 interface DisparityData {
@@ -38,6 +39,7 @@ const TABS = [
   { id: "peers", label: "Peers & Trends" },
   { id: "geographic", label: "Geography" },
   { id: "controls", label: "Controls" },
+  { id: "variance", label: "Variance" },
   { id: "legal", label: "Legal" },
 ] as const;
 
@@ -264,6 +266,16 @@ function ResultsContent() {
                   yearLabel={yearLabel}
                 />
               </div>
+            </div>
+
+            {/* Tab: Variance (PCA + KBO decomposition) */}
+            <div className={activeTab === "variance" ? "" : "hidden print:block"}>
+              <PCAAnalysis
+                lei={lei}
+                state={state || undefined}
+                msa={msa || undefined}
+                years={years}
+              />
             </div>
 
             {/* Tab: Legal */}
