@@ -9,6 +9,10 @@ import PeerComparison from "@/components/PeerComparison";
 import TrendChart from "@/components/TrendChart";
 import LegalAnalysis from "@/components/LegalAnalysis";
 import GeographicAnalysis from "@/components/GeographicAnalysis";
+import StratifiedAnalysis from "@/components/StratifiedAnalysis";
+import DataQuality from "@/components/DataQuality";
+import PCAAnalysis from "@/components/PCAAnalysis";
+import DiscriminationRiskSummary from "@/components/DiscriminationRiskSummary";
 import { US_STATES } from "@/lib/constants";
 
 interface DisparityData {
@@ -22,10 +26,21 @@ interface TrendYear {
   disparityRatios: DisparityRatio[];
 }
 
+/** Minimal summary extracted from /api/stratified for Legal tab */
+interface ControlledDisparitySummary {
+  significantInConventionalPurchase: boolean;
+  cmhLoanTypeSignificant: boolean;
+  cmhIncomeBandSignificant: boolean;
+  incomeBandsAvailable: boolean;
+  anyGroupUnderpowered: boolean;
+}
+
 const TABS = [
   { id: "disparity", label: "Disparity" },
   { id: "peers", label: "Peers & Trends" },
   { id: "geographic", label: "Geography" },
+  { id: "controls", label: "Controls" },
+  { id: "variance", label: "Variance" },
   { id: "legal", label: "Legal" },
 ] as const;
 
@@ -53,6 +68,7 @@ function ResultsContent() {
   const [disparity, setDisparity] = useState<DisparityData | null>(null);
   const [peers, setPeers] = useState<DisparityData | null>(null);
   const [trends, setTrends] = useState<TrendYear[] | null>(null);
+  const [controlledDisparity, setControlledDisparity] = useState<ControlledDisparitySummary | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -76,7 +92,35 @@ function ResultsContent() {
       })
       .catch((e) => setError(String(e)))
       .finally(() => setLoading(false));
-  }, [lei, state, msa, years]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [lei, state, msa, years]); // eslint-disable-line react-hooks/exhaustive-deps -- geoParam is derived from state/msa; including it would duplicate the dependency
+
+  // Fetch stratified data in background for Legal tab summary
+  useEffect(() => {
+    if (!lei || (!state && !msa)) return;
+    fetch(`/api/stratified?lei=${lei}&${geoParam}&years=${years}`)
+      .then((r) => r.json())
+      .then((d) => {
+        if (d.error) return;
+        const summary: ControlledDisparitySummary = {
+          significantInConventionalPurchase:
+            d.conventionalPurchase?.disparityRatios?.some(
+              (r: DisparityRatio) => r.chiSquare?.significant
+            ) ?? false,
+          cmhLoanTypeSignificant:
+            d.loanTypeCMH?.some((e: { cmh: { significant: boolean } }) => e.cmh.significant) ?? false,
+          cmhIncomeBandSignificant:
+            d.incomeBandCMH?.some((e: { cmh: { significant: boolean } }) => e.cmh.significant) ?? false,
+          incomeBandsAvailable: d.incomeBandsAvailable ?? false,
+          anyGroupUnderpowered:
+            d.powerAnalysis?.some(
+              (e: { mde: { adequateFor1_5: boolean } | null }) =>
+                e.mde && !e.mde.adequateFor1_5
+            ) ?? false,
+        };
+        setControlledDisparity(summary);
+      })
+      .catch(() => {});
+  }, [lei, state, msa, years]); // eslint-disable-line react-hooks/exhaustive-deps -- geoParam is derived from state/msa; including it would duplicate the dependency
 
   if (!lei || (!state && !msa)) {
     return (
@@ -152,6 +196,15 @@ function ResultsContent() {
           <>
             {/* Tab: Disparity */}
             <div className={activeTab === "disparity" ? "space-y-10" : "hidden print:block print:space-y-10"}>
+              <DiscriminationRiskSummary
+                disparityRatios={disparity.disparityRatios}
+                marketRatios={peers?.disparityRatios || []}
+                trends={trends || []}
+                lenderName={name}
+                geoLabel={geoLabel}
+                yearLabel={yearLabel}
+                controlledDisparity={controlledDisparity}
+              />
               <DisparityProfile
                 ratios={disparity.disparityRatios}
                 lenderName={name}
@@ -201,6 +254,40 @@ function ResultsContent() {
               )}
             </div>
 
+            {/* Tab: Controls (stratified analysis + data quality) */}
+            <div className={activeTab === "controls" ? "space-y-16" : "hidden print:block print:space-y-16"}>
+              <StratifiedAnalysis
+                lei={lei}
+                state={state || undefined}
+                msa={msa || undefined}
+                years={years}
+                lenderName={name}
+                geoLabel={geoLabel}
+                yearLabel={yearLabel}
+              />
+              <div className="border-t border-neutral-200 pt-10">
+                <DataQuality
+                  lei={lei}
+                  state={state || undefined}
+                  msa={msa || undefined}
+                  years={years}
+                  lenderName={name}
+                  geoLabel={geoLabel}
+                  yearLabel={yearLabel}
+                />
+              </div>
+            </div>
+
+            {/* Tab: Variance (PCA + KBO decomposition) */}
+            <div className={activeTab === "variance" ? "" : "hidden print:block"}>
+              <PCAAnalysis
+                lei={lei}
+                state={state || undefined}
+                msa={msa || undefined}
+                years={years}
+              />
+            </div>
+
             {/* Tab: Legal */}
             <div className={activeTab === "legal" ? "" : "hidden print:block"}>
               <LegalAnalysis
@@ -213,6 +300,7 @@ function ResultsContent() {
                 lei={lei}
                 years={years}
                 yearLabel={yearLabel}
+                controlledDisparity={controlledDisparity}
               />
             </div>
           </>

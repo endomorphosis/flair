@@ -1,5 +1,11 @@
-import { Aggregation, AggregationResponse } from "./hmda";
+import { AggregationResponse } from "./hmda";
 import { ACTION_ORIGINATED, ACTION_DENIED, RACE_LABELS } from "./constants";
+import {
+  computeDisparityCI,
+  chiSquareTest,
+  ConfidenceInterval,
+  ChiSquareResult,
+} from "./statistics";
 
 export interface DenialRateEntry {
   group: string;
@@ -17,6 +23,15 @@ export interface DisparityRatio {
   denialRate: number;
   baselineDenialRate: number;
   applications: number;
+  // Raw counts for downstream statistical tests
+  denials: number;
+  baselineApplications: number;
+  baselineDenials: number;
+  // Statistical significance (always populated)
+  ci: ConfidenceInterval | null;
+  chiSquare: ChiSquareResult | null;
+  /** True when minority group has < 30 applications (existing threshold) */
+  lowSampleWarning: boolean;
 }
 
 export function computeDenialRates(data: AggregationResponse): DenialRateEntry[] {
@@ -61,14 +76,32 @@ export function computeDisparityRatios(
 
   return denialRates
     .filter((r) => r.group !== baselineGroup && r.applications >= 30)
-    .map((r) => ({
-      group: r.group,
-      label: r.label,
-      ratio: r.denialRate / baseline.denialRate,
-      denialRate: r.denialRate,
-      baselineDenialRate: baseline.denialRate,
-      applications: r.applications,
-    }))
+    .map((r) => {
+      const ci = computeDisparityCI(
+        r.denials, r.applications,
+        baseline.denials, baseline.applications
+      );
+      const chiSquare = chiSquareTest(
+        r.denials,
+        r.originations,
+        baseline.denials,
+        baseline.originations
+      );
+      return {
+        group: r.group,
+        label: r.label,
+        ratio: r.denialRate / baseline.denialRate,
+        denialRate: r.denialRate,
+        baselineDenialRate: baseline.denialRate,
+        applications: r.applications,
+        denials: r.denials,
+        baselineApplications: baseline.applications,
+        baselineDenials: baseline.denials,
+        ci,
+        chiSquare,
+        lowSampleWarning: r.applications < 30,
+      };
+    })
     .sort((a, b) => b.ratio - a.ratio);
 }
 
