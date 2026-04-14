@@ -12,6 +12,7 @@ import GeographicAnalysis from "@/components/GeographicAnalysis";
 import StratifiedAnalysis from "@/components/StratifiedAnalysis";
 import DataQuality from "@/components/DataQuality";
 import PCAAnalysis from "@/components/PCAAnalysis";
+import DiscriminationRiskSummary from "@/components/DiscriminationRiskSummary";
 import { US_STATES } from "@/lib/constants";
 
 interface DisparityData {
@@ -195,6 +196,15 @@ function ResultsContent() {
           <>
             {/* Tab: Disparity */}
             <div className={activeTab === "disparity" ? "space-y-10" : "hidden print:block print:space-y-10"}>
+              <DiscriminationRiskSummary
+                disparityRatios={disparity.disparityRatios}
+                marketRatios={peers?.disparityRatios || []}
+                trends={trends || []}
+                lenderName={name}
+                geoLabel={geoLabel}
+                yearLabel={yearLabel}
+                controlledDisparity={controlledDisparity}
+              />
               <DisparityProfile
                 ratios={disparity.disparityRatios}
                 lenderName={name}
